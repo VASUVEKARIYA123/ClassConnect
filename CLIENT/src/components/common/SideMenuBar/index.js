@@ -1,43 +1,33 @@
-import React, { useState } from 'react';
-
-import {Link} from 'react-router-dom'
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 // ICONS
-import { IoMdHome } from 'react-icons/io'
+import { IoMdHome } from "react-icons/io";
 
 // STYLES
-import {
-  Menu,
-  WrapperMenu,
-  LittleTitle
- } from './styles'
+import { Menu, WrapperMenu, LittleTitle } from "./styles";
 
-// API
-import api from '../../../services/tasks'
+// API (Contains Subjects Data)
+import api from "../../../services/tasks";
 
-
-export default ({hide}) => {
-  const [menuOptions, ] = useState(api);
-
+export default function SideMenuBar({ hide }) {
+  const [menuOptions] = useState(api); // ✅ Contains subject list
+  const role=localStorage.getItem("role")
   return (
-  <Menu show={hide}>
-    <WrapperMenu>
-
-      <Link to="/">
-        <IoMdHome size={30} color="#4d4848" />
-        Home
-      </Link>
-
-      <LittleTitle>Matérias</LittleTitle>
-
-      {
-        menuOptions.map( (menuLine) =>  (
-          <Link to={`/tasks/${menuLine.id}`} key={menuLine.id}>
-              <img src={menuLine.avatar} alt={menuLine.subject}></img>
-              <span>{menuLine.subject}</span>
-          </Link>))
-      }
-
-    </WrapperMenu>
-  </Menu>)
+    <Menu show={hide}>
+      <WrapperMenu>
+        {/* 🔹 Add Faculty (Only for Admins) */}
+        {role === "admin" && (
+          <Link to="/add-faculty">
+            Add Faculty
+          </Link>
+        )}
+        {role === "admin" && (
+          <Link to="/faculty-byfile">
+            Add Faculties
+          </Link>
+        )}
+      </WrapperMenu>
+    </Menu>
+  );
 }

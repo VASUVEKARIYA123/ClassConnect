@@ -7,6 +7,7 @@ const multer = require('multer')
 const upload = multer({ storage: multer.memoryStorage() });// Memory storage for file upload
 // Routes
 router.post("/", auth, authorizeRole(["admin","subadmin"]), facultyController.addFaculty);
+router.post("/import", auth, authorizeRole(["admin","subadmin"]), upload.single('file'),facultyController.importFaculties);
 router.post("/import-in-classroom", auth, authorizeRole(["admin","subadmin"]), upload.single('file'),facultyController.importFacultiesWithClassroom);
 router.get("/:facultyId", auth, authorizeRole(["admin","subadmin","teacher","student"]), facultyController.getFacultyById);
 router.get("/", auth, authorizeRole(["admin","subadmin","teacher","student"]), facultyController.getAllFaculties);

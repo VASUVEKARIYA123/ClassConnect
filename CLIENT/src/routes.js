@@ -9,6 +9,9 @@ import Logout from './components/Logout/logout';
 import ClassroomDetails from "./components/ClassroomDetails/classroomDetails";
 import ImportStudents from './components/TeacherPost/components/ImportStudents/ImportStudents';
 import ImportFaculties from './components/TeacherPost/components/ImportFaculties/ImportFaculties';
+import AddFaculty from "./components/AddFaculty"; 
+import FacByFile from "./components/AddFacByFile/AddFacByFile"
+
 
 import ImportProjects from './components/Projects/components/ImportProject/importProject';
 import Projects from './components/Projects';
@@ -26,6 +29,8 @@ export default function Routes() {
         <Route path="/classroom-details/:classId" exact component={ClassroomDetails} />
         <Route path="/import-students/:classroomId" exact component={ImportStudents} />
         <Route path="/import-faculties/:classroomId" exact component={ImportFaculties} />
+        <Route path="/add-faculty" exact component={AddFaculty} />
+        <Route path="/faculty-byfile" exact component={FacByFile} />
         <Route path="/import-projects" exact component={ImportProjects} />
       </Switch>
     </BrowserRouter>

@@ -4,7 +4,8 @@ const Criteria = require("../models/Criteria");
 // Add Criteria for a Classroom
 const addCriteria = async (req, res) => {
     const { cpi, min_group_size, max_group_size, division } = req.body;
-
+    console.log(cpi);
+    
 
     try {
         // Ensure CPI is within 0-10

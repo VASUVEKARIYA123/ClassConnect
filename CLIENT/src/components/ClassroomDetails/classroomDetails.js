@@ -22,6 +22,13 @@ const Section = styled.div`
 `;
 
 const Title = styled.h3`
+  font-size: 1.8rem;
+  color: #007bff;
+  margin-bottom: 12px;
+`;
+
+const Title1 = styled.h4`
+  margin-top: 15px;
   font-size: 1.4rem;
   color: #007bff;
   margin-bottom: 12px;
@@ -135,33 +142,68 @@ export default function ClassroomDetails() {
     const fetchClassroomData = async () => {
       try {
         const studentRes = await fetch(
-          `http://localhost:5000/api/classroom-students/classroom/${classId}`,
+          `http://localhost:5000/api/classroom-students/classroom-student/${classId}`,
           {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }
         );
-
         const studentData = await studentRes.json();
+  
         const facultyRes = await fetch(
-          `http://localhost:5000/api/classroom-faculties/classroom/${classId}`,
+          `http://localhost:5000/api/classroom-faculties/classroom-faculty/${classId}`,
           {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }
         );
         const facultyData = await facultyRes.json();
 
-        if (studentRes.ok) setStudents(studentData.students || []);
-        if (facultyRes.ok) setFaculties(facultyData.faculties || []);
+        
+        if (studentRes.ok){
+          const len=studentData.noofcs
+         let sdivA=[]
+         let sdivB=[]
+         for(let i=0;i<len;i++){
+            if(studentData.classroomStudents[i].division=="A"){
+              sdivA.push(studentData.classroomStudents[i])
+            }
+         }
+         for(let i=0;i<len;i++){
+          if(studentData.classroomStudents[i].division=="B"){
+            sdivB.push(studentData.classroomStudents[i])
+          }
+       }
+      setStudents([...sdivA,...sdivB]|| [])
+        }
+  
+        if (facultyRes.ok) {
+          // ✅ Separate faculties by division
+         const len=facultyData.noofcf
+         let divA=[]
+         let divB=[]
+         for(let i=0;i<len;i++){
+            if(facultyData.classroomFaculties[i].division=="A" && facultyData.classroomFaculties[i].facultyId.role!="admin"){
+              divA.push(facultyData.classroomFaculties[i])
+            }
+         }
+         for(let i=0;i<len;i++){
+          if(facultyData.classroomFaculties[i].division=="B" && facultyData.classroomFaculties[i].facultyId.role!="admin"){
+            divB.push(facultyData.classroomFaculties[i])
+          }
+       }
+         
+          // ✅ Merge arrays → First "A", then "B"
+          setFaculties([...divA, ...divB]);
+        }
       } catch (error) {
         console.error("Error fetching classroom details:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchClassroomData();
   }, [classId]);
-
+  
   // ✅ FUNCTION TO FETCH STUDENT INFO
   const handleStudentInfo = async (studentId) => {
     try {
@@ -227,6 +269,7 @@ export default function ClassroomDetails() {
         );
         setSelectedStudent(null);
         console.log("Student details updated successfully!");
+       window.location.reload()
       } else {
         console.error("Failed to update student details");
       }
@@ -265,7 +308,7 @@ export default function ClassroomDetails() {
       }
   
       const data = await response.json();
-      console.log("Hi");
+      // console.log("Hi");
       
       
       // ✅ Step 2: Find the correct classroomFacultyId
@@ -277,7 +320,7 @@ export default function ClassroomDetails() {
           break;
         }
       }
-      console.log(classroomFacultyId);
+      // console.log(classroomFacultyId);
       
       // ✅ Step 3: Send DELETE request
       const deleteResponse = await fetch(
@@ -362,6 +405,41 @@ export default function ClassroomDetails() {
   };
 
 
+  const handleChangeFacultyDivision = async (classroomFaculty, currentDivision) => {
+    const newDivision = currentDivision === "A" ? "B" : "A";
+    console.log(classroomFaculty);
+    
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/classroom-faculties/${classroomFaculty._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({classroomId:classroomFaculty.classroomId, division: newDivision,faculty:classroomFaculty.facultyId._id,max_students:classroomFaculty.max_students }),
+        }
+      );
+      // console.log(response);
+      
+      if (response.ok) {
+        setFaculties((prevFaculties) =>
+          prevFaculties.map((f) =>
+            f._id === classroomFaculty._id ? { ...f, division: newDivision } : f
+          )
+        );
+        console.log("Faculty division updated successfully!");
+        window.location.reload(); // ✅ Refresh UI
+      } else {
+        console.error("Failed to update faculty division");
+      }
+    } catch (error) {
+      console.error("Error updating faculty division:", error);
+    }
+  };
+  
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -372,20 +450,56 @@ export default function ClassroomDetails() {
           <Title>Faculties</Title>
           {faculties.length > 0 ? (
            
-            <List>
-              {faculties.map((faculty) => (
-                 (faculty.role!="admin")?(
-                <ListItem key={faculty._id}>{faculty.firstname} {faculty.lastname}
-                {(role === "teacher" || role === "admin") && (
-                <ButtonWrapper>
-                  {/* <InfoButton onClick={() => handleFacultyInfo(faculty._id)}>Info</InfoButton> */}
-                  <DeleteButton onClick={() => handleDeleteFaculty(faculty._id)}>Delete</DeleteButton>
-                </ButtonWrapper>
-              )}
-                </ListItem>
-                 ):""
-              ))}
-            </List>
+           <List>
+           {/* 🔹 Filter faculties based on division A */}
+           <Title1>Division A</Title1>
+           {faculties
+             .filter((classroomFaculties) => classroomFaculties.division === "A")
+             .map((classroomFaculties) =>
+               classroomFaculties.facultyId.role !== "admin" ? (
+                 <ListItem key={classroomFaculties._id}>
+                   {classroomFaculties.facultyId.firstname} {classroomFaculties.facultyId.lastname}
+                   {(role === "admin") && (
+                     <ButtonWrapper>
+                      <InfoButton
+            onClick={() => handleChangeFacultyDivision(classroomFaculties, classroomFaculties.division)}
+          >
+            Change Division
+          </InfoButton>
+                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties.facultyId._id)}>
+                         Delete
+                       </DeleteButton>
+                     </ButtonWrapper>
+                   )}
+                 </ListItem>
+               ) : null
+             )}
+         
+           {/* 🔹 Filter faculties based on division B */}
+           <Title1>Division B</Title1>
+           {faculties
+             .filter((classroomFaculties) => classroomFaculties.division === "B")
+             .map((classroomFaculties) =>
+               classroomFaculties.facultyId.role !== "admin" ? (
+                 <ListItem key={classroomFaculties._id}>
+                   {classroomFaculties.facultyId.firstname} {classroomFaculties.facultyId.lastname}
+                   {(role === "admin") && (
+                     <ButtonWrapper>
+                      <InfoButton
+            onClick={() => handleChangeFacultyDivision(classroomFaculties, classroomFaculties.division)}
+          >
+            Change Division
+          </InfoButton>
+                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties.facultyId._id)}>
+                         Delete
+                       </DeleteButton>
+                     </ButtonWrapper>
+                   )}
+                 </ListItem>
+               ) : null
+             )}
+         </List>
+         
           ) : (
             <p>No faculties found.</p>
           )}
@@ -395,18 +509,39 @@ export default function ClassroomDetails() {
           <Title>Students</Title>
           {students.length > 0 ? (
           <List>
-          {students.map((student) => (
-            <ListItem key={student._id}>
-              {student.firstname} {student.lastname}
-              {(role === "teacher" || role === "admin") && (
-                <ButtonWrapper>
-                  <InfoButton onClick={() => handleStudentInfo(student._id)}>Info</InfoButton>
-                  <DeleteButton onClick={() => handleDeleteStudent(student._id)}>Delete</DeleteButton>
-                </ButtonWrapper>
-              )}
-            </ListItem>
-          ))}
+          {/* 🔹 Students in Division A */}
+          <Title1>Division A</Title1>
+          {students
+            .filter((classroomStudent) => classroomStudent.division === "A")
+            .map((classroomStudent) => (
+              <ListItem key={classroomStudent.studentId._id}>
+                {classroomStudent.studentId.firstname} {classroomStudent.studentId.lastname}
+                {(role === "teacher" || role === "admin") && (
+                  <ButtonWrapper>
+                    <InfoButton onClick={() => handleStudentInfo(classroomStudent.studentId._id)}>Info</InfoButton>
+                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent.student._id)}>Delete</DeleteButton>
+                  </ButtonWrapper>
+                )}
+              </ListItem>
+            ))}
+        
+          {/* 🔹 Students in Division B */}
+          <Title1>Division B</Title1>
+          {students
+            .filter((classroomStudent) => classroomStudent.division === "B")
+            .map((classroomStudent) => (
+              <ListItem key={classroomStudent.studentId._id}>
+                {classroomStudent.studentId.firstname} {classroomStudent.studentId.lastname}
+                {(role === "teacher" || role === "admin") && (
+                  <ButtonWrapper>
+                    <InfoButton onClick={() => handleStudentInfo(classroomStudent.studentId._id)}>Info</InfoButton>
+                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent.student._id)}>Delete</DeleteButton>
+                  </ButtonWrapper>
+                )}
+              </ListItem>
+            ))}
         </List>
+        
         
          
           ) : (
@@ -418,23 +553,31 @@ export default function ClassroomDetails() {
       {/* ✅ MODAL FOR DISPLAYING & EDITING STUDENT INFO */}
       {selectedStudent && (
         <ModalOverlay>
-          <ModalContent>
-            <h3>Student Information</h3>
-            <p><strong>First Name:</strong> {selectedStudent.studentId.firstname}</p>
-            <p><strong>Last Name:</strong> {selectedStudent.studentId.lastname}</p>
-            {role === "admin" && (
-              <p><strong>CPI:</strong> 
-              {localStorage.getItem("cpi")}</p>
-                /* <Input type="number" value={selectedStudent.cpi} onChange={(e) => setSelectedStudent({ ...selectedStudent, cpi: e.target.value })} /> */
-            )}
-            <p><strong>Division:</strong> 
-              <Input type="text" value={selectedStudent.division} onChange={(e) => setSelectedStudent({ ...selectedStudent, division: e.target.value })} />
-            </p>
-            
-            <ApplyButton onClick={handleApplyChanges}>Apply Changes</ApplyButton>
-            <CloseButton onClick={() => setSelectedStudent(null)}>Close</CloseButton>
-          </ModalContent>
-        </ModalOverlay>
+        <ModalContent>
+          <h3>Student Information</h3>
+          
+          <p><strong>First Name:</strong> {selectedStudent.studentId.firstname}</p>
+          <p><strong>Last Name:</strong> {selectedStudent.studentId.lastname}</p>
+          
+          {role === "admin" && (
+            <p><strong>CPI:</strong> {localStorage.getItem("cpi")}</p>
+            /* <Input type="number" value={selectedStudent.cpi} onChange={(e) => setSelectedStudent({ ...selectedStudent, cpi: e.target.value })} /> */
+          )}
+      
+          {/* 🔹 Division Dropdown */}
+          <p><strong>Division:</strong></p>
+          <select
+            value={selectedStudent.division} // Default value is the current division
+            onChange={(e) => setSelectedStudent({ ...selectedStudent, division: e.target.value })}
+          >
+            <option value="A">A</option>
+            <option value="B">B</option>
+          </select>
+          
+          <ApplyButton onClick={handleApplyChanges}>Apply Changes</ApplyButton>
+          <CloseButton onClick={() => setSelectedStudent(null)}>Close</CloseButton>
+        </ModalContent>
+      </ModalOverlay>      
       )}
     </>
   );

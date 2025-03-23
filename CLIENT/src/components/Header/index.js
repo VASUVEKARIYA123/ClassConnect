@@ -55,11 +55,12 @@ function Header() {
   return (
     <>
       <Container>
-        {/* <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
-          <div></div>
-          <div></div>
-          <div></div>
-        </HamburguerButton> */}
+        <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
+        <div></div>
+        <div></div>
+        <div></div>
+
+        </HamburguerButton>
 
         {
           role == null ? <Link to="/">Classroom</Link> : <Link to="/subject">Classroom</Link>
