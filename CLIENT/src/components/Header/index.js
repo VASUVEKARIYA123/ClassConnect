@@ -62,9 +62,11 @@ function Header() {
 
         </HamburguerButton>
 
-
-        <Link to="/">Classroom</Link>
-
+        {
+          role == null ? <Link to="/">Classroom</Link> : <Link to="/subject">Classroom</Link>
+        }
+        
+        
         <div className="name">{name}</div>
         <div className="groupButtons">
           {/* ✅ Add Button (Redirects to Create Classroom) */}

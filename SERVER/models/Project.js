@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const ProjectSchema = new mongoose.Schema({
+    number: {
+        type: Number,
+        required: true
+    },
     domain: {
         type: String,
         required: true

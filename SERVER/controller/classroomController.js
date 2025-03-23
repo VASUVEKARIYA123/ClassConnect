@@ -1,4 +1,5 @@
 const Classroom = require("../models/Classroom");
+const Project = require("../models/Project");
 
 
 // Add a new classroom
@@ -32,7 +33,7 @@ const getClassroomById = async (req, res) => {
 
 
     try {
-        const classroom = await Classroom.findById(classroomId);
+        const classroom = await Classroom.findById(classroomId).populate('projects');
         if (!classroom) {
             return res.status(404).json({ message: "Classroom not found" });
         }
@@ -111,11 +112,65 @@ const deleteClassroomById = async (req, res) => {
     }
 };
 
+// Add Project to Classroom
+const addProjectToClassroom = async (req, res) => {
+    try {
+        const { classroomId, projectId } = req.body;
+
+        const classroom = await Classroom.findById(classroomId);
+        if (!classroom) {
+            return res.status(404).json({ message: 'Classroom not found' });
+        }
+
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
+
+        if (classroom.projects.includes(projectId)) {
+            return res.status(400).json({ message: 'Project already added to classroom' });
+        }
+
+        classroom.projects.push(projectId);
+        await classroom.save();
+
+        res.status(200).json({ message: 'Project added to classroom successfully', classroom });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// Remove Project from Classroom
+const removeProjectFromClassroom = async (req, res) => {
+    try {
+        const { classroomId, projectId } = req.body;
+
+        const classroom = await Classroom.findById(classroomId);
+        if (!classroom) {
+            return res.status(404).json({ message: 'Classroom not found' });
+        }
+
+        if (!classroom.projects.includes(projectId)) {
+            return res.status(400).json({ message: 'Project not found in classroom' });
+        }
+
+        classroom.projects = classroom.projects.filter(id => id.toString() !== projectId);
+        await classroom.save();
+
+        res.status(200).json({ message: 'Project removed from classroom successfully', classroom });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+
 
 module.exports = {
     addClassroom,
     getClassroomById,
     getAllClassrooms,
     updateClassroom,
-    deleteClassroomById
+    deleteClassroomById,
+    addProjectToClassroom,
+    removeProjectFromClassroom
 };

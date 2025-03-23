@@ -13,11 +13,14 @@ import AddFaculty from "./components/AddFaculty";
 import FacByFile from "./components/AddFacByFile/AddFacByFile"
 
 
+import ImportProjects from './components/Projects/components/ImportProject/importProject';
+import Projects from './components/Projects';
 export default function Routes() {
   return (
     <BrowserRouter>
       <Switch>
         <Route path="/subject" exact component={Subjects} />
+        <Route path="/projects" exact component={Projects} />
         <Route path="/tasks/:classId" exact component={TeacherPost} />
         <Route path="/create-classroom" exact component={CreateClassroom} />
         <Route path="/create-labtask" exact component={CreateLabTask} />
@@ -28,7 +31,7 @@ export default function Routes() {
         <Route path="/import-faculties/:classroomId" exact component={ImportFaculties} />
         <Route path="/add-faculty" exact component={AddFaculty} />
         <Route path="/faculty-byfile" exact component={FacByFile} />
-        
+        <Route path="/import-projects" exact component={ImportProjects} />
       </Switch>
     </BrowserRouter>
   );

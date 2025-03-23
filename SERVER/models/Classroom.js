@@ -6,9 +6,11 @@ const ClassroomSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+
     description:{
         type:String,
     },
+
     semester: {
         type: Number,
         required:true
@@ -26,6 +28,10 @@ const ClassroomSchema = new mongoose.Schema({
         type:String,
         default: 'https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png'
     },
+    projects: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Project',
+        }],
     mode:{
         type:String,
         default: 'phase1'
