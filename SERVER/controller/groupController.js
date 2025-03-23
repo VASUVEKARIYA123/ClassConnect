@@ -49,6 +49,8 @@ const findMatchingStudents = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 const changemode = async (req, res) => {
     const { groupId } = req.params;
 
@@ -552,6 +554,45 @@ const getGroupByStudentId = async (req, res) => {
     }
 };
 
+const addGroupChoice = async (req, res) => {
+    try {
+        const { groupId, facultyProjectId } = req.body;
+
+        // Validate input
+        if (!groupId || !facultyProjectId) {
+            return res.status(400).json({ message: "Group ID and Faculty Project ID are required" });
+        }
+
+        // Find the group
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ message: "Group not found" });
+        }
+
+        // Check if the faculty project exists
+        const facultyProject = await FacultyProject.findById(facultyProjectId);
+        if (!facultyProject) {
+            return res.status(404).json({ message: "Faculty Project not found" });
+        }
+
+        // Prevent duplicate choices
+        if (group.groupchoice.includes(facultyProjectId)) {
+            return res.status(400).json({ message: "Faculty Project already added to group choice" });
+        }
+
+        // Add facultyProjectId to groupchoice array
+        group.groupchoice.push(facultyProjectId);
+        group.updatedAt = Date.now();
+
+        // Save changes
+        await group.save();
+
+        res.status(200).json({ message: "Group choice added successfully", group });
+    } catch (error) {
+        console.error("Error adding group choice:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 
 
 
@@ -566,6 +607,7 @@ module.exports = {
     updateGroupFull,
     deleteGroup,
     getGroupByStudentId,
-    changemode
+    changemode,
+    addGroupChoice
 };
 

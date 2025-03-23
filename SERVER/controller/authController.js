@@ -3,30 +3,6 @@ const jwt = require("jsonwebtoken");
 const faculty = require("../models/Faculty");
 const Student = require("../models/Student");
 
-// User Registration
-const register = async (req, res) => {
-  try {
-    const { username, email, password, role } = req.body;
-
-    if (!["teacher", "student"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    let newUser;
-    if (role === "teacher") {
-      newUser = new faculty({ username, email, password: hashedPassword, role });
-    } else {
-      return res.status(400).json({ message: "Students should be registered separately." });
-    }
-
-    await newUser.save();
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 // User Login
 const login = async (req, res) => {
@@ -90,7 +66,6 @@ const logout = (req, res) => {
 };
 
 module.exports = {
-  register,
   login,
   logout
 };
