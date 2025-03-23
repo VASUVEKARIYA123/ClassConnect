@@ -4,6 +4,7 @@ const classroomFacultyController = require("../controller/classroomfacultyContro
 const { auth } = require("../middleware/auth");
 const { authorizeRole } = require("../middleware/authorizeRole");
 // Routes
+
 router.get("/classroom-faculty/:classroomId", auth, authorizeRole(["admin", "teacher","student"]), classroomFacultyController.getClassroomFacultiesByClassroomId);
 router.post("/", auth, authorizeRole(["admin"]), classroomFacultyController.addClassroomFaculty);
 router.get("/classrooms", auth, authorizeRole(["admin","teacher"]), classroomFacultyController.getClassroomsOfFaculty);
@@ -13,5 +14,6 @@ router.get("/", auth, authorizeRole(["admin","teacher","student"]), classroomFac
 router.put("/:classroomfacultyId", auth, authorizeRole(["admin"]), classroomFacultyController.updateClassroomFaculty);
 router.delete("/:classroomfacultyId", auth, authorizeRole(["admin"]),  classroomFacultyController.deleteClassroomFacultyById);
 router.get("/classroom/:classroomId", auth, authorizeRole(["admin", "teacher","student"]), classroomFacultyController.getFacultiesByClassroomId);
+
 module.exports = router;
  

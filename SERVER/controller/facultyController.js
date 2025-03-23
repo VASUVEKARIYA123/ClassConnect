@@ -144,7 +144,32 @@ const deleteFacultyById = async (req, res) => {
 };
 
 // Change faculty role to admin
-const changeRoleToAdmin = async (req, res) => {
+const changeRoleTosubAdmin = async (req, res) => {
+    try {
+        const { facultyId } = req.params;
+
+        // Count existing sub-admins
+        const subAdminCount = await Faculty.countDocuments({ role: "subadmin" });
+
+        if (subAdminCount >= 2) {
+            return res.status(400).json({ message: "Cannot assign more than 2 sub-admins." });
+        }
+
+        const faculty = await Faculty.findById(facultyId);
+        if (!faculty) {
+            return res.status(404).json({ message: "Faculty not found" });
+        }
+
+        faculty.role = "subadmin";
+        await faculty.save();
+
+        res.json({ message: "Faculty role updated to subadmin successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server Error: " + err.message });
+    }
+};
+
+const changeRoleToTeacher = async (req, res) => {
     const facultyId = req.params.facultyId;
 
     try {
@@ -153,10 +178,10 @@ const changeRoleToAdmin = async (req, res) => {
             return res.status(404).json({ message: "Faculty not found" });
         }
 
-        faculty.role = "admin";
+        faculty.role = "teacher";
         await faculty.save();
 
-        res.json({ message: "Faculty role updated to admin successfully" });
+        res.json({ message: "Faculty role updated to teacher successfully" });
     } catch (err) {
         res.status(500).json({ message: "Server Error: " + err });
     }
@@ -272,7 +297,8 @@ module.exports = {
     updateFacultybyadmin,
     updateFacultybyfaculty,
     deleteFacultyById,
-    changeRoleToAdmin,
+    changeRoleTosubAdmin,
+    changeRoleToTeacher,
     updateRating,
     importFacultiesWithClassroom
 };

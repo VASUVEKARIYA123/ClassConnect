@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const FacultySchema = new mongoose.Schema({
     role:{
         type:String,
-        enum:["teacher","admin"],
+        enum:["teacher","admin","subadmin"],
         default:"teacher"
     },
     firstname:{
