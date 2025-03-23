@@ -87,21 +87,26 @@ const getClassroomsOfFaculty = async (req, res) => {
 const updateClassroomFaculty = async (req, res) => {
     const classroomfacultyId = req.params.classroomfacultyId;
     const { classroomId, division, faculty, max_students } = req.body;
-
+    console.log(classroomId);
+    console.log(division);
+    console.log(faculty);
+    console.log(max_students);
+    
+    
 
     try {
         
-        const existingEntry = await ClassroomFaculty.findOne({ classroomId, faculty });
-        if (existingEntry) {
-            return res.status(400).json({ message: "Classroom faculty assignment already exists" });
-        }
-
+        // const existingEntry = await ClassroomFaculty.findOne({ classroomId, faculty });
+        // if (existingEntry) {
+        //     return res.status(400).json({ message: "Classroom faculty assignment already exists" });
+        // }
         const updatedClassroomFaculty = await ClassroomFaculty.findByIdAndUpdate(
             classroomfacultyId,
-            { classroomId, division, faculties, max_students, updatedAt: Date.now() },
+            { classroomId, division, faculty, max_students, updatedAt: Date.now() },
             { new: true }
         );
-
+        
+        
 
         if (!updatedClassroomFaculty) {
             return res.status(404).json({ message: "ClassroomFaculty entry not found" });

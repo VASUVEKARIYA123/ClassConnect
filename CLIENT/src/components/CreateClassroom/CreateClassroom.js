@@ -30,6 +30,13 @@ const TextArea = styled.textarea`
   border: 1px solid #ccc;
 `;
 
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+`;
+
 const Button = styled.button`
   padding: 10px 15px;
   border: none;
@@ -56,17 +63,28 @@ const Message = styled.p`
 
 export default function CreateClassroom() {
   const history = useHistory();
-  const [classroom, setClassroom] = useState({
+  const [formData, setFormData] = useState({
+    // Classroom Fields
     name: "",
     description: "",
     semester: "",
-    criteria: "67cc977005de27e4fe9f15bd",
+    // Criteria Fields
+    cpi: "",
+    min_group_size: "",
+    max_group_size: "",
+    division: false, // Checkbox for Different Division
   });
+
   const [message, setMessage] = useState(null);
   const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
-    setClassroom({ ...classroom, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value, // ✅ Checkbox for `division`
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -74,71 +92,62 @@ export default function CreateClassroom() {
     setMessage(null);
 
     try {
-      // Step 1: Create Classroom
-      const response = await fetch("http://localhost:5000/api/classrooms", {
+      // ✅ Step 1: Create Criteria
+      const criteriaResponse = await fetch("http://localhost:5000/api/criteria", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(classroom),
+        body: JSON.stringify({
+          cpi: formData.cpi,
+          min_group_size: formData.min_group_size,
+          max_group_size: formData.max_group_size,
+          division: formData.division,
+        }),
       });
 
-      const classroomData = await response.json();
-      
-      if (!response.ok) {
-        setMessage("Error creating classroom. Please try again.");
+      const criteriaData = await criteriaResponse.json();
+      if (!criteriaResponse.ok) {
+        setMessage("Error creating criteria. Please check your inputs.");
         setSuccess(false);
         return;
       }
 
-      const classroomId = classroomData.classroom._id; // Extract classroom ID from response
-      
-      localStorage.setItem("classroomId", classroomId); // Update localStorage with new classroom ID
+      const criteriaId = criteriaData.criteria._id; // ✅ Extract criteriaId
+      localStorage.setItem("criteriaId", criteriaId);
+
+      // ✅ Step 2: Create Classroom Using `criteriaId`
+      const classroomResponse = await fetch("http://localhost:5000/api/classrooms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          semester: formData.semester,
+          criteria: criteriaId, // ✅ Use the created `criteriaId`
+        }),
+      });
+
+      if (!classroomResponse.ok) {
+        setMessage("Error creating classroom.");
+        setSuccess(false);
+        return;
+      }
 
       setMessage("Classroom Created Successfully!");
       setSuccess(true);
 
-      const facultyId = localStorage.getItem("facultiesId"); // Retrieve facultyId from localStorage
-      // Step 2: Add Classroom-Faculty Entry
-      if (!classroomId || !facultyId) {
-        console.error("Missing classroomId or facultyId.");
-      } else {
-        const classroomFacultyRequest = {
-          classroomId: classroomId,
-          division: "A", // Default division
-          faculty: facultyId,
-          max_students: 20,
-        };
-
-        const facultyResponse = await fetch(
-          "http://localhost:5000/api/classroom-faculties",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify(classroomFacultyRequest),
-          }
-        );
-
-        const facultyData = await facultyResponse.json();
-
-        if (facultyResponse.ok) {
-          console.log("Classroom-Faculty entry added successfully!", facultyData);
-        } else {
-          console.error("Error adding faculty entry:", facultyData.message);
-        }
-      }
-
-      // Redirect to the classroom list
+      // ✅ Redirect after success
       setTimeout(() => {
         history.push("/subject");
         window.location.reload();
       }, 1500);
     } catch (error) {
-      setMessage("Error creating classroom. Please try again.");
+      setMessage("Error creating classroom.");
       setSuccess(false);
       console.error("Server Error:", error);
     }
@@ -150,10 +159,23 @@ export default function CreateClassroom() {
       <FormWrapper>
         <h2>Create Classroom</h2>
         <form onSubmit={handleSubmit}>
+          {/* Classroom Inputs */}
           <Input type="text" name="name" placeholder="Classroom Name" required onChange={handleChange} />
           <TextArea name="description" placeholder="Description" onChange={handleChange} />
           <Input type="number" name="semester" placeholder="Semester" required onChange={handleChange} />
-          <Button type="submit">Create</Button>
+
+          {/* Criteria Inputs */}
+          <Input type="number" name="cpi" placeholder="CPI (0-10)" min="0" max="10" step="any" required onChange={handleChange} />
+          <Input type="number" name="min_group_size" placeholder="Min Group Size (1-5)" min="1" max="5" required onChange={handleChange} />
+          <Input type="number" name="max_group_size" placeholder="Max Group Size (1-5)" min="1" max="5" required onChange={handleChange} />
+
+          {/* Division Checkbox */}
+          <CheckboxLabel>
+            <input type="checkbox" name="division" checked={formData.division} onChange={handleChange} />
+            Different Division
+          </CheckboxLabel>
+
+          <Button type="submit">Create Classroom</Button>
         </form>
         {message && <Message success={success}>{message}</Message>}
       </FormWrapper>

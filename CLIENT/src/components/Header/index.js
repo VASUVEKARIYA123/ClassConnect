@@ -55,11 +55,12 @@ function Header() {
   return (
     <>
       <Container>
-        {/* <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
-          <div></div>
-          <div></div>
-          <div></div>
-        </HamburguerButton> */}
+        <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
+        <div></div>
+        <div></div>
+        <div></div>
+
+        </HamburguerButton>
 
 
         <Link to="/">Classroom</Link>

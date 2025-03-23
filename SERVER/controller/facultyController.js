@@ -290,6 +290,38 @@ const importFacultiesWithClassroom = async (req, res) => {
     }
 };
 
+const importFaculties = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "Please upload an Excel file" });
+        }
+
+        // Read Excel file
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        // Convert sheet data to faculty objects
+        const faculties = await Promise.all(sheetData.map(async (row) => {
+            const hashedPassword = await bcrypt.hash(row.password, 10);
+            return {
+                firstname: row.firstname,
+                lastname: row.lastname,
+                email: row.email,
+                password: hashedPassword,
+                role: row.role || "teacher",  // Default role is "teacher" if not specified
+            };
+        }));
+
+        // Insert into DB
+        await Faculty.insertMany(faculties);
+
+        res.status(201).json({ message: "Faculties imported successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     addFaculty,
     getFacultyById,
@@ -300,5 +332,6 @@ module.exports = {
     changeRoleTosubAdmin,
     changeRoleToTeacher,
     updateRating,
-    importFacultiesWithClassroom
+    importFacultiesWithClassroom,
+    importFaculties
 };
