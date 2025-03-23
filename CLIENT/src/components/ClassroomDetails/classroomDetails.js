@@ -32,6 +32,20 @@ const List = styled.ul`
   padding: 0;
 `;
 
+
+const Button = styled.button`
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+
 const ListItem = styled.li`
   padding: 8px;
   border-bottom: 1px solid #ddd;
@@ -42,13 +56,10 @@ const ListItem = styled.li`
   align-items: center;
 `;
 
-const Button = styled.button`
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  margin-left: 5px;
+const ButtonWrapper = styled.div`
+  display: flex;
+  gap: 10px;  // Adds spacing between buttons
+  align-items: center;
 `;
 
 const InfoButton = styled(Button)`
@@ -66,6 +77,7 @@ const DeleteButton = styled(Button)`
     background: #c82333;
   }
 `;
+
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -154,7 +166,6 @@ export default function ClassroomDetails() {
   const handleStudentInfo = async (studentId) => {
     try {
       const classroomId = localStorage.getItem("classroomId");
-
       if (!classroomId) {
         console.error("Classroom ID is missing from localStorage");
         return;
@@ -179,7 +190,7 @@ export default function ClassroomDetails() {
         console.error("Student not found in classroom");
         return;
       }
-
+      localStorage.setItem("cpi",classroomStudent.cpi)
       setSelectedStudent(classroomStudent);
     } catch (error) {
       console.error("Error fetching student info:", error);
@@ -224,6 +235,72 @@ export default function ClassroomDetails() {
     }
   };
 
+  const handleDeleteFaculty = async (facultyId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove this faculty?"
+    );
+    if (!confirmDelete) return;
+  
+    try {
+      const classroomId = localStorage.getItem("classroomId");
+  
+      if (!classroomId) {
+        console.error("Classroom ID is missing from localStorage");
+        return;
+      }
+  
+      // ✅ Step 1: Fetch classroom faculties
+      const response = await fetch(
+        `http://localhost:5000/api/classroom-faculties/classroom-faculty/${classroomId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        console.error("Failed to fetch classroom faculties");
+        return;
+      }
+  
+      const data = await response.json();
+      console.log("Hi");
+      
+      
+      // ✅ Step 2: Find the correct classroomFacultyId
+      let classroomFacultyId;
+      const datalen = data.noofcf;
+      for (let i = 0; i < datalen; i++) {
+        classroomFacultyId = data.classroomFaculties[i]._id;
+        if (data.classroomFaculties[i].facultyId === facultyId) {
+          break;
+        }
+      }
+      console.log(classroomFacultyId);
+      
+      // ✅ Step 3: Send DELETE request
+      const deleteResponse = await fetch(
+        `http://localhost:5000/api/classroom-faculties/${classroomFacultyId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      if (deleteResponse.ok) {
+        setFaculties(faculties.filter((f) => f._id !== facultyId));
+        console.log("Faculty removed from classroom successfully!");
+      } else {
+        console.error("Failed to delete faculty");
+      }
+    } catch (error) {
+      console.error("Error deleting faculty:", error);
+    }
+  };
+  
   const handleDeleteStudent = async (studentId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to remove this student?"
@@ -262,7 +339,7 @@ export default function ClassroomDetails() {
           break;
         }
       }
-
+      
       const deleteResponse = await fetch(
         `http://localhost:5000/api/classroom-students/${classroomStudentId}`,
         {
@@ -294,9 +371,19 @@ export default function ClassroomDetails() {
         <Section>
           <Title>Faculties</Title>
           {faculties.length > 0 ? (
+           
             <List>
               {faculties.map((faculty) => (
-                <ListItem key={faculty._id}>{faculty.firstname} {faculty.lastname}</ListItem>
+                 (faculty.role!="admin")?(
+                <ListItem key={faculty._id}>{faculty.firstname} {faculty.lastname}
+                {(role === "teacher" || role === "admin") && (
+                <ButtonWrapper>
+                  {/* <InfoButton onClick={() => handleFacultyInfo(faculty._id)}>Info</InfoButton> */}
+                  <DeleteButton onClick={() => handleDeleteFaculty(faculty._id)}>Delete</DeleteButton>
+                </ButtonWrapper>
+              )}
+                </ListItem>
+                 ):""
               ))}
             </List>
           ) : (
@@ -307,21 +394,21 @@ export default function ClassroomDetails() {
         <Section>
           <Title>Students</Title>
           {students.length > 0 ? (
-            <List>
-              {students.map((student) => (
-                <ListItem key={student._id}>
-                  {student.firstname} {student.lastname}
-                  {(role === "teacher" || role === "admin") && (
-                    <>
-                      <InfoButton onClick={() => handleStudentInfo(student._id)}>Info</InfoButton>
-                      <DeleteButton onClick={() => handleDeleteStudent(student._id)}>
-                        Delete
-                      </DeleteButton>
-                    </>
-                  )}
-                </ListItem>
-              ))}
-            </List>
+          <List>
+          {students.map((student) => (
+            <ListItem key={student._id}>
+              {student.firstname} {student.lastname}
+              {(role === "teacher" || role === "admin") && (
+                <ButtonWrapper>
+                  <InfoButton onClick={() => handleStudentInfo(student._id)}>Info</InfoButton>
+                  <DeleteButton onClick={() => handleDeleteStudent(student._id)}>Delete</DeleteButton>
+                </ButtonWrapper>
+              )}
+            </ListItem>
+          ))}
+        </List>
+        
+         
           ) : (
             <p>No students found.</p>
           )}
@@ -335,14 +422,15 @@ export default function ClassroomDetails() {
             <h3>Student Information</h3>
             <p><strong>First Name:</strong> {selectedStudent.studentId.firstname}</p>
             <p><strong>Last Name:</strong> {selectedStudent.studentId.lastname}</p>
+            {role === "admin" && (
+              <p><strong>CPI:</strong> 
+              {localStorage.getItem("cpi")}</p>
+                /* <Input type="number" value={selectedStudent.cpi} onChange={(e) => setSelectedStudent({ ...selectedStudent, cpi: e.target.value })} /> */
+            )}
             <p><strong>Division:</strong> 
               <Input type="text" value={selectedStudent.division} onChange={(e) => setSelectedStudent({ ...selectedStudent, division: e.target.value })} />
             </p>
-            {role === "admin" && (
-              <p><strong>CPI:</strong> 
-                <Input type="number" value={selectedStudent.cpi} onChange={(e) => setSelectedStudent({ ...selectedStudent, cpi: e.target.value })} />
-              </p>
-            )}
+            
             <ApplyButton onClick={handleApplyChanges}>Apply Changes</ApplyButton>
             <CloseButton onClick={() => setSelectedStudent(null)}>Close</CloseButton>
           </ModalContent>
