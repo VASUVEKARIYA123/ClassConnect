@@ -1,13 +1,15 @@
 const mongoose = require('mongoose');
 
-
-
-
 const GroupSchema = new mongoose.Schema({
     facultyprojectId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'FacultyProject'
     },
+    groupchoice: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FacultyProject',
+        validate: [arrayLimit, '{PATH} exceeds the limit of 5 choices']
+    }],
     students: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
@@ -45,10 +47,14 @@ const GroupSchema = new mongoose.Schema({
     },
     mode: {
         type: String,
-        enum:["phase1","phase2"],
-        default:"phase1"
+        enum: ["phase1", "phase2"],
+        default: "phase1"
     }
 });
 
- 
-module.exports = mongoose.model('Group',GroupSchema);
+// Custom validation function to check array length
+function arrayLimit(val) {
+    return val.length <= 5;
+}
+
+module.exports = mongoose.model('Group', GroupSchema);
