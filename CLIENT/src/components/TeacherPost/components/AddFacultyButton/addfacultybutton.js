@@ -44,7 +44,7 @@ export default function AddfacultiesButton() {
   return (
     <Wrapper>
       <StyledAddFacultiesButton onClick={handleAddFaculties}>
-        Import Faculties
+        Add Faculties
       </StyledAddFacultiesButton>
       
     </Wrapper>

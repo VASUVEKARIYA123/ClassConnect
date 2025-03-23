@@ -55,11 +55,11 @@ function Header() {
   return (
     <>
       <Container>
-        <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
+        {/* <HamburguerButton show={showHamburguer} onClick={onClickHamburguer}>
           <div></div>
           <div></div>
           <div></div>
-        </HamburguerButton>
+        </HamburguerButton> */}
 
 
         <Link to="/">Classroom</Link>
@@ -82,7 +82,7 @@ function Header() {
           </HeaderButton>
 
 
-          <HeaderAvatar className="imgAvatar" src="https://api.adorable.io/avatars/hi_mom" alt="Adorable Avatar!" />
+          {/* <HeaderAvatar className="imgAvatar" src="https://api.adorable.io/avatars/hi_mom" alt="Adorable Avatar!" /> */}
         </div>
       </Container>
 

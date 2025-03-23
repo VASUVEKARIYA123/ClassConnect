@@ -153,21 +153,45 @@ const getFacultiesByClassroomId = async (req, res) => {
     const { classroomId } = req.params;
 
     try {
+        
         // Find all faculty entries in ClassroomFaculty table for the given classroom
         const classroomFaculties = await ClassroomFaculty.find({ classroomId }).populate("facultyId");
 
         if (!classroomFaculties.length) {
             return res.status(404).json({ message: "No faculties found for this classroom" });
         }
-
+ 
         // Extract only faculty details
         const faculties = classroomFaculties.map((entry) => entry.facultyId);
+        
         
         res.status(200).json({ faculties });
     } catch (err) {
         res.status(500).json({ message: "Server Error: " + err.message });
     }
 };
+
+const getClassroomFacultiesByClassroomId = async (req, res) => {
+    const { classroomId } = req.params;
+    console.log("HI");
+    
+    
+    try {
+        // Find all student entries in ClassroomStudent table for given classroom
+        
+        const classroomFaculties = await ClassroomFaculty.find({ classroomId }).populate("facultyId");
+        
+        if (!classroomFaculties.length) {
+            return res.status(404).json({ message: "No faculties found for this classroom" });
+        }
+
+      const len=classroomFaculties.length
+        res.status(200).json({ classroomFaculties, noofcf:len });
+    } catch (err) {
+        res.status(500).json({ message: "Server Error: " + err.message });
+    }
+};
+
 
 module.exports = {
     addClassroomFaculty,
@@ -177,5 +201,6 @@ module.exports = {
     deleteClassroomFacultyById,
     getFacultiesOfClassroom,
     getClassroomsOfFaculty,
-    getFacultiesByClassroomId
+    getFacultiesByClassroomId,
+    getClassroomFacultiesByClassroomId
 };
