@@ -14,6 +14,7 @@ const facultyprojectRoutes = require('./routes/facultyprojectRoutes')
 const groupRoutes = require('./routes/groupRoutes')
 const authRoutes = require('./routes/authRoutes');
 const labTaskRoutes = require("./routes/labTaskRoutes");
+const allocationRoutes = require("./routes/allocationRoutes");
 
 const app = express();
 const cors = require('cors');
@@ -37,6 +38,7 @@ app.use("/api/classrooms", classroomRoutes);
 app.use("/api/faculty-projects", facultyprojectRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/lab-tasks", labTaskRoutes);
+app.use("/api/allocation", allocationRoutes);
 
 app.post("/send-mail", (req, res) => {
 

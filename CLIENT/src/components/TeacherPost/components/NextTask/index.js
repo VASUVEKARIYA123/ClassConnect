@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import AddLabTaskButton from "../addLabTaskbut"; 
 import AddStudentButton from "../AddStudentButton/addStudentButton";
 import AddFacultyButton from "../AddFacultyButton/addfacultybutton"; 
-import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -88,9 +87,9 @@ export default () => {
    </StyledLink>
   )}
   {role === "admin" && (
-  <StyledLink to="/temp">
-     Add Projects To Classroom
-  </StyledLink>
+   <StyledLink to="/allocation">
+       Allocation
+   </StyledLink>
   )}
   </Wrapper>
   )
