@@ -55,13 +55,19 @@ export default () => {
   const role=localStorage.getItem("role")
   return (
   <Wrapper>
-    {/* <Title>upcoming activities</Title>
-    <Informations>No activity for next week!</Informations>
-    <br/>
-    <SeeAllTasks href="">View everything</SeeAllTasks> */}
   <AddLabTaskButton/>
   <AddStudentButton/>
   <AddFacultyButton/>
+  {role === "teacher" && (
+            <Link to="/addfaculty-projects">
+              Add Projects
+            </Link>
+          )}
+  {role === "admin" && (
+            <Link to="/temp">
+              Add Projects To Classroom
+            </Link>
+          )}
   </Wrapper>
   )
 }

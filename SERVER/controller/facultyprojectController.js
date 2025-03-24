@@ -4,31 +4,34 @@ const FacultyProject = require("../models/FacultyProject");
 // Add Faculty-Project Association
 const addFacultyProject = async (req, res) => {
     const { facultyId, projectId, classroomId } = req.body;
-    console.log(facultyId);
-    console.log(projectId);
-    
-    
 
     try {
         // Check if the same faculty-project-classroom combination already exists
-        const existingEntry = await FacultyProject.findOne({ facultyId, projectId, classroomId });
-
+        const existingEntry = await FacultyProject.findOne({ facultyId, projectId, classroomId })
+            .populate("facultyId", "firstname lastname email") // Populate faculty details
+            .populate("projectId", "domain defination max_groups") // Populate project details
+            .populate("classroomId", "name description semester"); // Populate classroom details
 
         if (existingEntry) {
-            return res.status(400).json({ message: "This faculty-project-classroom combination already exists" });
+            return res.status(400).json({ message: "This faculty-project-classroom combination already exists", existingEntry });
         }
 
-
+        // Create new faculty-project entry
         const facultyProject = new FacultyProject({ facultyId, projectId, classroomId });
         await facultyProject.save();
 
+        // Populate faculty, project, and classroom in the response
+        const populatedFacultyProject = await FacultyProject.findById(facultyProject._id)
+            .populate("facultyId")
+            .populate("projectId")
+            .populate("classroomId");
 
-        res.status(201).json({ message: "Faculty-Project assigned successfully", facultyProject });
-    }
-    catch (err) {
+        res.status(201).json({ message: "Faculty-Project assigned successfully", facultyProject: populatedFacultyProject });
+    } catch (err) {
         res.status(500).json({ message: "Server Error: " + err });
     }
 };
+
 
 
 // Get all Faculty-Project Assignments
@@ -159,11 +162,31 @@ const projectGroupCount = async (req, res) => {
     }
 };
 
+const getFacultyProjectsByClassroomAndFacId = async (req, res) => {
+    const { facultyId, classroomId } = req.params; // Get facultyId & classroomId from URL
+
+    try {
+        const facultyProjects = await FacultyProject.find({ facultyId, classroomId })
+            .populate("projectId") // Optional: Populate project details
+            .populate("facultyId", "firstname lastname") // Optional: Populate faculty details
+
+        if (!facultyProjects || facultyProjects.length === 0) {
+            return res.status(404).json({ message: "No faculty projects found for the given criteria" });
+        }
+
+        res.json(facultyProjects);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error: " + error.message });
+    }
+};
+
+
 module.exports = {
     addFacultyProject,
     getAllFacultyProjects,
     getFacultyProjectById,
     updateFacultyProject,
     deleteFacultyProject,
-    projectGroupCount
+    projectGroupCount,
+    getFacultyProjectsByClassroomAndFacId
 };

@@ -14,6 +14,7 @@ const Wrapper = styled.div`
 `;
 
 const Heading = styled.h2`
+  margin-top:35px;
   color: #333;
   font-size: 1.8rem;
   margin-bottom: 20px;
@@ -154,6 +155,7 @@ function ProjectsContainer() {
   const history = useHistory();
   const [projects, setProjects] = useState([]);
   const [domain, setDomain] = useState("");
+  const [classroomProjects, setClassroomProjects] = useState([]); // Admin-added projects
   const [definition, setDefinition] = useState("");
   const [max_groups, setMax_groups] = useState("");
   const [message, setMessage] = useState(null);
@@ -164,16 +166,48 @@ function ProjectsContainer() {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   // Fetch existing project definitions
   useEffect(() => {
-    fetch("http://localhost:5000/api/projects", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+    const facultyId = localStorage.getItem("facultiesId");  
+    const classroomId = localStorage.getItem("classroomId"); 
+
+    if (!facultyId || !classroomId) {
+        console.error("Missing facultyId or classroomId.");
+        return;
+    }
+
+    fetch(`http://localhost:5000/api/faculty-projects/fp/${facultyId}/${classroomId}`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
     })
-      .then((response) => response.json())
-      .then((data) => setProjects(data))
-      .catch((error) => console.error("Error fetching projects:", error));
-  }, []);
+    .then((response) => response.json())
+    .then((data) => {
+        console.log("Faculty Projects Response:", data);
+        if (Array.isArray(data.facultyProject)) {
+            setProjects(data.facultyProject);
+        } else {
+            console.error("Unexpected data format:", data);
+            setProjects([]);
+        }
+    })
+    .catch((error) => console.error("Error fetching faculty projects:", error));
+
+    fetch(`http://localhost:5000/api/classrooms/classroom/${classroomId}/projects`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log("Classroom Projects Response:", data);
+        setClassroomProjects(Array.isArray(data.projects) ? data.projects : []);
+    })
+    .catch((error) => console.error("Error fetching classroom projects:", error));
+
+}, []);
+
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -187,7 +221,7 @@ function ProjectsContainer() {
     const newProject = { domain, defination: definition };
     const facultyId = localStorage.getItem("facultiesId"); // Get facultyId from logged-in user
     const classroomId = localStorage.getItem("classroomId"); // ✅ Get classroomId from storage
-    console.log(classroomId);
+  
     
     try {
       // ✅ Step 1: Create Project
@@ -208,7 +242,8 @@ function ProjectsContainer() {
       }
 
       const projectId = data.project._id; // ✅ Get projectId from response
-
+    //   console.log(data.project);
+      
       // ✅ Step 2: Associate Project with Faculty & Classroom
       const facultyResponse = await fetch("http://localhost:5000/api/faculty-projects/", {
         method: "POST",
@@ -220,6 +255,8 @@ function ProjectsContainer() {
       });
 
       const facultyData = await facultyResponse.json();
+      console.log(facultyData);
+      
       if (!facultyResponse.ok) {
         setMessage(facultyData.error || "Failed to associate project with faculty.");
         setSuccess(false);
@@ -227,7 +264,9 @@ function ProjectsContainer() {
       }
 
       // ✅ Success Message & UI Update
-      setProjects([...projects, data.project]);
+      setProjects([...projects, facultyData.facultyProject] || []);
+      
+      
       setDomain("");
       setDefinition("");
       setMessage("Project added and assigned to faculty successfully!");
@@ -242,9 +281,9 @@ function ProjectsContainer() {
   // Open Modal for Update
   const openUpdateModal = (project) => {
     setSelectedProject(project);
-    setDomain(project.domain);
-    setDefinition(project.defination);
-    setMax_groups(project.max_groups);
+    setDomain(project.projectId.domain);
+    setDefinition(project.projectId.defination);
+    setMax_groups(project.projectId.max_groups);
     setIsModalOpen(true);
   };
 
@@ -252,37 +291,77 @@ function ProjectsContainer() {
   const handleUpdate = async () => {
     setMessage(null);
     if (!domain || !definition || !max_groups) {
-      setMessage("Please fill all fields.");
-      setSuccess(false);
-      return;
+        setMessage("Please fill all fields.");
+        setSuccess(false);
+        return;
     }
-    try {
-      const response = await fetch(`http://localhost:5000/api/projects/${selectedProject._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ domain, defination: definition , max_groups:  max_groups }),
-      });
 
-      if (response.ok) {
+    try {
+        const projectId = selectedProject.projectId._id; 
+        const facultyProjectId = selectedProject._id; // Faculty-Project ID
+
+        // ✅ Step 1: Update Project
+        const projectResponse = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                domain,
+                defination: definition,
+                max_groups
+            }),
+        });
+
+        if (!projectResponse.ok) {
+            setMessage("Failed to update project.");
+            setSuccess(false);
+            return;
+        }
+
+        // ✅ Step 2: Update Faculty-Project Entry
+        const facultyResponse = await fetch(`http://localhost:5000/api/faculty-projects/${facultyProjectId}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                facultyId: localStorage.getItem("facultiesId"),
+                projectId,
+                classroomId: localStorage.getItem("classroomId")
+            }),
+        });
+
+        if (!facultyResponse.ok) {
+            setMessage("Failed to update faculty-project entry.");
+            setSuccess(false);
+            return;
+        }
+
+        // ✅ Step 3: Update State & Close Modal
         setProjects(
-          projects.map((proj) =>
-            proj._id === selectedProject._id ? { ...proj, domain, defination: definition, max_groups: max_groups } : proj
-          )
+            projects.map((proj) =>
+                proj.projectId._id === projectId
+                    ? { ...proj, projectId: { ...proj.projectId, domain, defination: definition, max_groups } }
+                    : proj
+            ) 
         );
+        
         setDomain("");
         setDefinition("");
-        setMax_groups(8);
+        setMax_groups("");
         setIsModalOpen(false);
-      } else {
-        setMessage("Failed to update project.");
-      }
+        setMessage("Project and Faculty-Project updated successfully!");
+        setSuccess(true);
+
     } catch (error) {
-      setMessage("Server error: " + error.message);
+        setMessage("Server error: " + error.message);
+        setSuccess(false);
     }
-  };
+};
+
 
 //   const handleDelete = async () => {
 //     if (!selectedProjectId) return;
@@ -313,6 +392,70 @@ function ProjectsContainer() {
     setIsDeleteModalOpen(true);
   };
 
+  
+
+
+  const fetchProjects = () => {
+    const facultyId = localStorage.getItem("facultiesId");
+    const classroomId = localStorage.getItem("classroomId");
+
+    if (!facultyId || !classroomId) {
+        console.error("Missing facultyId or classroomId.");
+        return;
+    }
+
+    fetch(`http://localhost:5000/api/faculty-projects/fp/${facultyId}/${classroomId}`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        setProjects(data || []);
+    })
+    .catch((error) => console.error("Error fetching faculty projects:", error));
+};
+
+
+  const handleAddProject = async (projectId) => {
+    const facultyId = localStorage.getItem("facultiesId");  // ✅ Get logged-in faculty's ID
+    const classroomId = localStorage.getItem("classroomId"); // ✅ Get selected classroom ID
+
+    if (!facultyId || !classroomId) {
+        console.error("Missing facultyId or classroomId.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5000/api/faculty-projects/", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ facultyId, projectId, classroomId }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            setMessage(data.message || "Failed to add project.");
+            setSuccess(false);
+            return;
+        }
+
+        setMessage("Project added successfully!");
+        setSuccess(true);
+
+        // ✅ Re-fetch projects after adding
+        fetchProjects();
+
+    } catch (error) {
+        setMessage("Server error: " + error.message);
+        setSuccess(false);
+    }
+};
+
 
   return (
     <Wrapper>
@@ -332,20 +475,20 @@ function ProjectsContainer() {
             <Th>Domain</Th>
             <Th>Definition</Th>
             <Th>Max Groups</Th>
-            <Th>Actions</Th>
+            {/* <Th>Actions</Th> */}
           </tr>
         </thead>
         <tbody>
           {projects.map((project) => (
-            <Row key={project._id}>
-              <Td>{project.number}</Td>
-              <Td>{project.domain}</Td>
-              <Td>{project.defination}</Td>
-              <Td>{project.max_groups}</Td>
-              <Td>
-                <Button className="update" onClick={() => openUpdateModal(project)}>Update</Button>
+            <Row key={project.projectId._id}>
+              <Td>{project.projectId.number}</Td>
+              <Td>{project.projectId.domain}</Td>
+              <Td>{project.projectId.defination}</Td>
+              <Td>{project.projectId.max_groups}</Td>
+              {/* <Td> */}
+                {/* <Button className="update" onClick={() => openUpdateModal(project)}>Update</Button> */}
                 {/* <Button className="delete" onClick={() => openDeleteModal(project._id)}>Delete</Button> */}
-            </Td>
+            {/* </Td> */}
             </Row>
           ))}
         </tbody>
@@ -361,7 +504,7 @@ function ProjectsContainer() {
         </ModalOverlay>
       )} */}
 
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <ModalOverlay>
           <ModalContent>
             <h3>Update Project</h3>
@@ -372,7 +515,38 @@ function ProjectsContainer() {
             <CloseButton onClick={() =>  {setDefinition("");setDomain(""); setIsModalOpen(false)}}>Close</CloseButton>
           </ModalContent>
         </ModalOverlay>
-      )}
+      )} */}
+            <Heading>Classroom Projects (Added by Admin)</Heading>
+      <Table>
+        <thead>
+          <tr>
+            <Th>Number</Th>
+            <Th>Domain</Th>
+            <Th>Definition</Th>
+            <Th>Max Groups</Th>
+            <Th>Actions</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {classroomProjects.map((project) => (
+            <Row key={project._id}>
+              <Td>{project.number}</Td>
+              <Td>{project.domain}</Td>
+              <Td>{project.defination}</Td>
+              <Td>{project.max_groups}</Td>
+              <Td>
+                <Button
+                  onClick={() => handleAddProject(project._id)}
+                  disabled={projects.some((p) => p.projectId._id === project._id)}
+                >
+                  {projects.some((p) => p.projectId._id === project._id) ? "Added" : "Add"}
+                </Button>
+              </Td>
+            </Row>
+          ))}
+        </tbody>
+      </Table>
+
     </Wrapper>
   );
 }

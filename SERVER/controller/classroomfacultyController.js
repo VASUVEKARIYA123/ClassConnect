@@ -12,7 +12,7 @@ const addClassroomFaculty = async (req, res) => {
             return res.status(400).json({ message: "Classroom faculty assignment already exists" });
         }
         
-        const classroomFaculty = new ClassroomFaculty({ classroomId, division, facultyId:faculty, max_students });
+        const classroomFaculty = new ClassroomFaculty({ classroomId, division:"A", facultyId:faculty, max_students:22 });
         
         await classroomFaculty.save();
     
@@ -87,10 +87,10 @@ const getClassroomsOfFaculty = async (req, res) => {
 const updateClassroomFaculty = async (req, res) => {
     const classroomfacultyId = req.params.classroomfacultyId;
     const { classroomId, division, faculty, max_students } = req.body;
-    console.log(classroomId);
-    console.log(division);
-    console.log(faculty);
-    console.log(max_students);
+    // console.log(classroomId);
+    // console.log(division);
+    // console.log(faculty);
+    // console.log(max_students);
     
     
 
@@ -178,7 +178,7 @@ const getFacultiesByClassroomId = async (req, res) => {
 
 const getClassroomFacultiesByClassroomId = async (req, res) => {
     const { classroomId } = req.params;
-    console.log("HI");
+    // console.log("HI");
     
     
     try {

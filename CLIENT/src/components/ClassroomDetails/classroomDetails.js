@@ -7,10 +7,12 @@ import styled from "styled-components";
 const PageWrapper = styled.div`
   max-width: 60vw;
   margin: 40px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 `;
 
 const Section = styled.div`
@@ -39,22 +41,25 @@ const List = styled.ul`
   padding: 0;
 `;
 
-
 const Button = styled.button`
-  padding: 5px 10px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border-radius: 6px;
   cursor: pointer;
-  margin-left: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.9rem;
+  margin: 3px;
+  transition: 0.3s ease;
+  background: #007bff;
+  color: white;
+
+  &:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, #0056b3, #003d80);
+  }
 `;
 
-
 const ListItem = styled.li`
-  padding: 8px;
+  padding: 10px;
   border-bottom: 1px solid #ddd;
   font-size: 1rem;
   color: #333;
@@ -65,13 +70,12 @@ const ListItem = styled.li`
 
 const ButtonWrapper = styled.div`
   display: flex;
-  gap: 10px;  // Adds spacing between buttons
+  gap: 10px;  
   align-items: center;
 `;
 
 const InfoButton = styled(Button)`
   background: #17a2b8;
-  color: white;
   &:hover {
     background: #138496;
   }
@@ -79,12 +83,10 @@ const InfoButton = styled(Button)`
 
 const DeleteButton = styled(Button)`
   background: #dc3545;
-  color: white;
   &:hover {
     background: #c82333;
   }
 `;
-
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -115,20 +117,27 @@ const CloseButton = styled(Button)`
 
 const ApplyButton = styled(Button)`
   background: #28a745;
-  color: white;
   &:hover {
     background: #218838;
   }
 `;
 
 const Input = styled.input`
-  width: 80%;
-  padding: 5px;
+  width: 95%;
+  padding: 12px;
   margin-top: 5px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  border-radius: 4px;
   font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.4);
+  }
 `;
+
 
 export default function ClassroomDetails() {
   const { classId } = useParams(); 

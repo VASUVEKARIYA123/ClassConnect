@@ -163,6 +163,22 @@ const removeProjectFromClassroom = async (req, res) => {
     }
 };
 
+const getProjectsByClassroom = async (req, res) => {
+    try {
+        const { classroomId } = req.params;
+        // console.log(classroomId);
+        
+        const classroom = await Classroom.findById(classroomId).populate("projects", "domain defination max_groups");
+        
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found" });
+        }
+
+        res.status(200).json({ message: "Projects fetched successfully", projects: classroom.projects });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
 
 
 module.exports = {
@@ -172,5 +188,6 @@ module.exports = {
     updateClassroom,
     deleteClassroomById,
     addProjectToClassroom,
-    removeProjectFromClassroom
+    removeProjectFromClassroom,
+    getProjectsByClassroom
 };
