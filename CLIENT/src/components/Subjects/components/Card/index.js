@@ -103,6 +103,8 @@ export default function Card({ data }) {
 
   const handleViewClassroomDetails = () => {
     localStorage.setItem("classroomId",data._id)
+    console.log(localStorage.getItem("classroomId"));
+    
     history.push(`/classroom-details/${data._id}`); // Navigate to classroom details page
   };
 

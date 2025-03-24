@@ -7,43 +7,55 @@ import Header from "../Header";
 const FormWrapper = styled.div`
   max-width: 50vw;
   margin: 40px auto;
-  padding: 20px;
-  background: snow;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 10px;
+  width: 95%;
+  padding: 12px;
   margin-bottom: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.4);
+  }
 `;
 
 const Button = styled.button`
-  padding: 10px 15px;
+  padding: 12px 15px;
   border: none;
-  border-radius: 5px;
-  background: #007bff;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
   cursor: pointer;
   width: 100%;
   font-size: 1rem;
-  transition: background 0.3s;
+  font-weight: bold;
+  transition: transform 0.2s, background 0.3s;
 
   &:hover {
-    background: #0056b3;
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, #0056b3, #003d80);
   }
 `;
 
 const Message = styled.p`
   font-size: 1rem;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 15px;
   color: ${({ success }) => (success ? "green" : "red")};
 `;
+
 
 export default function ImportFaculties() {
   const { classroomId } = useParams();

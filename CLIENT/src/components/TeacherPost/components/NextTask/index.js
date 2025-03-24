@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import styled from 'styled-components'
 import AddLabTaskButton from "../addLabTaskbut"; 
 import AddStudentButton from "../AddStudentButton/addStudentButton";
 import AddFacultyButton from "../AddFacultyButton/addfacultybutton"; 
 import { Link } from "react-router-dom";
-// STYLES
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -73,20 +74,24 @@ export default () => {
   const role=localStorage.getItem("role")
   return (
   <Wrapper>
-    {/* <Title>upcoming activities</Title>
-    <Informations>No activity for next week!</Informations>
-    <br/>
-    <SeeAllTasks href="">View everything</SeeAllTasks> */}
   <AddLabTaskButton/>
   <AddStudentButton/>
   <AddFacultyButton/>
-
   {role === "admin" && (
   <StyledLink to="/add-classroom-project">
     Add project to classroom
   </StyledLink>
-)}
-
+  )}
+  {role === "teacher" && (
+   <StyledLink to="/addfaculty-projects">
+       Add Projects
+   </StyledLink>
+  )}
+  {role === "admin" && (
+  <StyledLink to="/temp">
+     Add Projects To Classroom
+  </StyledLink>
+  )}
   </Wrapper>
   )
 }
