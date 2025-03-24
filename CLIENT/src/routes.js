@@ -11,7 +11,7 @@ import ImportStudents from './components/TeacherPost/components/ImportStudents/I
 import ImportFaculties from './components/TeacherPost/components/ImportFaculties/ImportFaculties';
 import AddFaculty from "./components/AddFaculty"; 
 import FacByFile from "./components/AddFacByFile/AddFacByFile"
-import temp from "./components/TeacherPost/components/addClassroomProject"
+import AddClassroomProject from "./components/TeacherPost/components/addClassroomProject"
 
 
 import ImportProjects from './components/Projects/components/ImportProject/importProject';
@@ -33,7 +33,7 @@ export default function Routes() {
         <Route path="/add-faculty" exact component={AddFaculty} />
         <Route path="/faculty-byfile" exact component={FacByFile} />
         <Route path="/import-projects" exact component={ImportProjects} />
-        <Route path="/temp" exact component={temp} />
+        <Route path="/add-classroom-project" exact component={AddClassroomProject} />
       </Switch>
     </BrowserRouter>
   );
