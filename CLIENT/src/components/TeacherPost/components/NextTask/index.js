@@ -62,11 +62,6 @@ export default () => {
   <AddLabTaskButton/>
   <AddStudentButton/>
   <AddFacultyButton/>
-  {role === "teacher" && (
-          <Link to="/addfaculty-projects">
-            Add Projects
-          </Link>
-        )}
   </Wrapper>
   )
 }

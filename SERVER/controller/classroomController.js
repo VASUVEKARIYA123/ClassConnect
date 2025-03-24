@@ -134,7 +134,7 @@ const addProjectToClassroom = async (req, res) => {
         classroom.projects.push(projectId);
         await classroom.save();
 
-        res.status(200).json({ message: 'Project added to classroom successfully', classroom });
+        res.status(200).json({ message: 'Project added to classroom successfully', project });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }

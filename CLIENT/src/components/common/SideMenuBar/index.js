@@ -32,7 +32,6 @@ export default function SideMenuBar({ hide }) {
             Add Projects
           </Link>
         )}
-        
       </WrapperMenu>
     </Menu>
   );
