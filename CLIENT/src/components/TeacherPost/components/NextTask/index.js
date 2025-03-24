@@ -138,6 +138,11 @@ export default () => {
             Find Matches
           </StyledLink>
         )}
+        {role === "admin" && (
+          <StyledLink to="/allocation">
+            Allocation
+        </StyledLink>
+       )}
       </Wrapper>
 
       {/* Pop-up Modal for Showing Matches */}

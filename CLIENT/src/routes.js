@@ -10,8 +10,11 @@ import ClassroomDetails from "./components/ClassroomDetails/classroomDetails";
 import ImportStudents from './components/TeacherPost/components/ImportStudents/ImportStudents';
 import ImportFaculties from './components/TeacherPost/components/ImportFaculties/ImportFaculties';
 import AddFaculty from "./components/AddFaculty"; 
-import FacByFile from "./components/AddFacByFile/AddFacByFile"
-import AddClassroomProject from "./components/TeacherPost/components/addClassroomProject"
+
+import FacByFile from "./components/AddFacByFile/AddFacByFile";
+import AddClassroomProject from "./components/TeacherPost/components/addClassroomProject";
+import Allocation from './components/Allocation';
+
 import AddFacProject from './components/Projects/components/AddFacProject/AddFacProject';
 import ImportProjects from './components/Projects/components/ImportProject/importProject';
 import Projects from './components/Projects';
@@ -38,6 +41,7 @@ export default function Routes() {
         <Route path="/addfaculty-projects" exact component={AddFacProject} />
         <Route path="/stu-projects" exact component={StudentProjects} />
         <Route path="/match" exact component={NextTask}/>
+        <Route path="/allocation" exact component={Allocation} />
       </Switch>
     </BrowserRouter>
   );

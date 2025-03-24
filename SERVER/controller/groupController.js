@@ -599,6 +599,22 @@ const addGroupChoice = async (req, res) => {
     }
 };
 
+const getGroupsByClassroomId = async (req, res) => {
+    try {
+        const { classroomId } = req.params;
+
+        const groups = await Group.find({ classroomId })
+            .populate('facultyprojectId')
+            .populate('groupchoice')
+            .populate('students');
+
+        res.status(200).json(groups);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
 
 
 
@@ -614,6 +630,7 @@ module.exports = {
     deleteGroup,
     getGroupByStudentId,
     changemode,
-    addGroupChoice
+    addGroupChoice,
+    getGroupsByClassroomId
 };
 

@@ -63,6 +63,7 @@ const Button1 = styled.button`
 
 const Button = styled.button`
   padding: 8px 12px;
+  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -151,6 +152,37 @@ const Message = styled.p`
   margin-top: 15px;
   color: ${({ success }) => (success ? "green" : "red")};
 `;
+const Dropdown = styled.select`
+  width: 100%;
+  padding: 10px;
+  margin: 15px 0;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+`;
+
+const ProjectCard = styled.div`
+  padding: 15px;
+  margin: 10px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+`;
+const DropdownOption = styled.option`
+  font-size: 1rem;
+  padding: 10px;
+`;
+
 function ProjectsContainer() {
   const history = useHistory();
   const [projects, setProjects] = useState([]);
@@ -164,6 +196,9 @@ function ProjectsContainer() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+
+  
+    
   // Fetch existing project definitions
   useEffect(() => {
     const facultyId = localStorage.getItem("facultiesId");  
@@ -362,29 +397,6 @@ function ProjectsContainer() {
     }
 };
 
-
-//   const handleDelete = async () => {
-//     if (!selectedProjectId) return;
-
-//     try {
-//       const response = await fetch(`http://localhost:5000/api/projects/${selectedProjectId}`, {
-//         method: "DELETE",
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-//         },
-//       });
-
-//       if (response.ok) {
-//         setProjects(projects.filter((project) => project._id !== selectedProjectId));
-//         setIsDeleteModalOpen(false);
-//       } else {
-//         console.error("Failed to delete project");
-//       }
-//     } catch (error) {
-//       console.error("Server error:", error.message);
-//     }
-//   };
-
   
   // Open delete confirmation modal
   const openDeleteModal = (projectId) => {
@@ -456,6 +468,15 @@ function ProjectsContainer() {
     }
 };
 
+const uniqueDomains = [...new Set(classroomProjects.map((p) => p.domain))];
+const [selectedDomain, setSelectedDomain] = useState("");
+
+const filteredProjects = selectedDomain
+    ? classroomProjects.filter((project) => project.domain === selectedDomain)
+    : [];
+
+console.log("Filtered Projects:", filteredProjects);
+
 
   return (
     <Wrapper>
@@ -464,8 +485,7 @@ function ProjectsContainer() {
         <Input type="text" placeholder="Enter Domain" value={domain} onChange={(e) => setDomain(e.target.value)} />
         <Input type="text" placeholder="Enter Definition" value={definition} onChange={(e) => setDefinition(e.target.value)} />
         <Button1 type="submit">Add Project</Button1>
-        {/* <T>Or</T>
-        <Button1 type="button" onClick={() => history.push("/import-projects")}>Import Project</Button1> */}
+       
       </form>
       {message && <Message success={success}>{message}</Message>}
       <Table>
@@ -485,52 +505,37 @@ function ProjectsContainer() {
               <Td>{project.projectId.domain}</Td>
               <Td>{project.projectId.defination}</Td>
               <Td>{project.projectId.max_groups}</Td>
-              {/* <Td> */}
-                {/* <Button className="update" onClick={() => openUpdateModal(project)}>Update</Button> */}
-                {/* <Button className="delete" onClick={() => openDeleteModal(project._id)}>Delete</Button> */}
-            {/* </Td> */}
             </Row>
           ))}
         </tbody>
       </Table>
 
-      {/* {isDeleteModalOpen && (
-        <ModalOverlay>
-          <ModalContent>
-            <h3>Are you sure you want to delete this project?</h3>
-            <Button className="delete" onClick={handleDelete}>Yes, Delete</Button>
-            <CloseButton onClick={() => setIsDeleteModalOpen(false)}>Cancel</CloseButton>
-          </ModalContent>
-        </ModalOverlay>
-      )} */}
+      <Heading>Classroom Projects (Added by Admin)</Heading>
 
-      {/* {isModalOpen && (
-        <ModalOverlay>
-          <ModalContent>
-            <h3>Update Project</h3>
-            <Input type="text" value={domain} onChange={(e) => setDomain(e.target.value)} />
-            <Input type="text" value={definition} onChange={(e) => setDefinition(e.target.value)} />
-            <Input type="number" value={max_groups} onChange={(e) => setMax_groups(e.target.value)} />
-            <Button className="update" onClick={handleUpdate}>Save Changes</Button>
-            <CloseButton onClick={() =>  {setDefinition("");setDomain(""); setIsModalOpen(false)}}>Close</CloseButton>
-          </ModalContent>
-        </ModalOverlay>
-      )} */}
-            <Heading>Classroom Projects (Added by Admin)</Heading>
+      <h2>Select a Project Domain</h2>
+      {/* Dropdown for selecting domain */}
+      <Dropdown onChange={(e) => setSelectedDomain(e.target.value)}>
+        <option value="">-- Select Domain --</option>
+        {uniqueDomains.map((domain, index) => (
+          <option key={index} value={domain}>{domain}</option>
+        ))}
+      </Dropdown>
+    
       <Table>
         <thead>
           <tr>
-            <Th>Number</Th>
+            {/* <Th>Number</Th> */}
             <Th>Domain</Th>
             <Th>Definition</Th>
             <Th>Max Groups</Th>
             <Th>Actions</Th>
           </tr>
         </thead>
+        
         <tbody>
-          {classroomProjects.map((project) => (
+          {filteredProjects.map((project) => (
             <Row key={project._id}>
-              <Td>{project.number}</Td>
+              {/* <Td>{project.number}</Td> */}
               <Td>{project.domain}</Td>
               <Td>{project.defination}</Td>
               <Td>{project.max_groups}</Td>
@@ -546,6 +551,21 @@ function ProjectsContainer() {
           ))}
         </tbody>
       </Table>
+
+    <div>
+      {selectedDomain==="" ? (
+        <p>Select a domain to view projects</p>
+      ) : (<p></p>)}
+    </div>
+    
+    {/* Display filtered projects */}
+    <div>
+      {filteredProjects.length == 0 && selectedDomain!=="" ? (
+        <p>No projects found for this domain.</p>
+      ) : (
+        <p></p>
+      )}
+    </div>
 
     </Wrapper>
   );
