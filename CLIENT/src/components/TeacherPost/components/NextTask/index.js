@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import AddLabTaskButton from "../addLabTaskbut"; 
 import AddStudentButton from "../AddStudentButton/addStudentButton";
 import AddFacultyButton from "../AddFacultyButton/addfacultybutton"; 
-// import AddProject from "../addProject";
-// STYLES
+import { Link } from "react-router-dom";
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -49,6 +49,25 @@ const SeeAllTasks = styled.a`
     text-decoration: underline;
   }
 `
+const StyledLink = styled(Link)`
+  display: inline-block;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: white;
+  background-color: #007bff;
+  border-radius: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s;
+
+  &:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+`;
+
 
 
 export default () => {
@@ -58,16 +77,21 @@ export default () => {
   <AddLabTaskButton/>
   <AddStudentButton/>
   <AddFacultyButton/>
-  {role === "teacher" && (
-            <Link to="/addfaculty-projects">
-              Add Projects
-            </Link>
-          )}
   {role === "admin" && (
-            <Link to="/temp">
-              Add Projects To Classroom
-            </Link>
-          )}
+  <StyledLink to="/add-classroom-project">
+    Add project to classroom
+  </StyledLink>
+  )}
+  {role === "teacher" && (
+   <StyledLink to="/addfaculty-projects">
+       Add Projects
+   </StyledLink>
+  )}
+  {role === "admin" && (
+  <StyledLink to="/temp">
+     Add Projects To Classroom
+  </StyledLink>
+  )}
   </Wrapper>
   )
 }
