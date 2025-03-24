@@ -9,7 +9,6 @@ const GroupSchema = new mongoose.Schema({
     groupchoice: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'FacultyProject',
-        required: false
     }],
     students: [{
         type: mongoose.Schema.Types.ObjectId,

@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 import {
   Wrapper, Header, Informations, GroupName, DateOfCreation, Button,
- CreateGroupButton, Loader, InputField, JoinGroupButton ,GroupMembers, GroupCode, CopyButton , ErrorMessage
+  CreateGroupButton, Loader, InputField, JoinGroupButton, GroupMembers, GroupCode, CopyButton, ErrorMessage
 } from './styles';
 
-
 import { MdGroup } from "react-icons/md"; // Import the group icon
+
 const Group = () => {
+  const history = useHistory();
   const [groupData, setGroupData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupCode, setGroupCode] = useState('');
   const [errorMessage, setErrorMessage] = useState("");
- 
+
   const fetchGroup = async () => {
     const studentId = localStorage.getItem("facultiesId");
     try {
@@ -29,15 +31,14 @@ const Group = () => {
       setGroupData(data);
     } catch (error) {
       console.error("Error fetching group data:", error);
-      // setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchGroup();
   }, []);
-
 
   const handleCreateGroup = async () => {
     if (!groupName) {
@@ -54,13 +55,12 @@ const Group = () => {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify({
-          classroomId:localStorage.getItem("classroomId"),
+          classroomId: localStorage.getItem("classroomId"),
           students: [studentId],
           name: groupName
         })
       });
-      console.log(localStorage.getItem("classroomId"));
-      
+
       const responseData = await response.json();
       if (!response.ok) throw new Error(responseData.error);
       await fetchGroup();
@@ -71,7 +71,6 @@ const Group = () => {
       setCreating(false);
     }
   };
-
 
   const handleJoinGroup = async () => {
     if (!groupCode) {
@@ -87,34 +86,22 @@ const Group = () => {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
       });
-     
+
       const responseData = await response.json();
-      if (!response.ok){
-        // console.log(responseData);
-
-
+      if (!response.ok) {
         throw new Error(responseData.error);
-      }
-      else{
+      } else {
         await fetchGroup();
       }
-     
-
-
-      // setGroupData(data);
     } catch (error) {
-     
       setErrorMessage(error.message);
       console.error("Error joining group:", error);
     }
   };
 
-
   const handleCopyCode = () => {
     navigator.clipboard.writeText(groupData.groupCode);
-    // alert("Group Code Copied!");
   };
-
 
   const handleChangeMode = async () => {
     try {
@@ -134,34 +121,35 @@ const Group = () => {
     }
   };
 
+  const handleShowProjects = () => {
+    history.push("/stu-projects"); // ✅ Redirect to Project Definitions Page
+  };
 
   if (loading) {
     return <Loader>Loading...</Loader>;
   }
- 
-  const role=localStorage.getItem("role")
 
   return (
     <Wrapper>
       {groupData ? (
         <>
           <Header>
-          <MdGroup size={40} />
+            <MdGroup size={40} />
             <Informations>
               <GroupName>{groupData.name}</GroupName>
               <DateOfCreation>Created on: {groupData.createdAt}</DateOfCreation>
             </Informations>
           </Header>
-          {/* <Description>{groupData.description}</Description> */}
-          { groupData.mode === "phase2" ? "" :
-          <GroupCode>
-            <strong>Group Code :- &nbsp;&nbsp;</strong> {groupData.groupCode}{" "}
-            <CopyButton onClick={handleCopyCode}>Copy</CopyButton>
-          </GroupCode>
-    }
-      
+
+          {groupData.mode === "phase2" ? "" : (
+            <GroupCode>
+              <strong>Group Code :- &nbsp;&nbsp;</strong> {groupData.groupCode}{" "}
+              <CopyButton onClick={handleCopyCode}>Copy</CopyButton>
+            </GroupCode>
+          )}
+
           <GroupMembers>
-          <strong>Members  :-  &nbsp;&nbsp;</strong>
+            <strong>Members  :-  &nbsp;&nbsp;</strong>
             <ul>
               {groupData.students.length > 0 ? (
                 groupData.students.map((student, index) => (
@@ -174,8 +162,15 @@ const Group = () => {
               )}
             </ul>
           </GroupMembers>
-     
-          {groupData.mode==="phase2"? "":<Button onClick={handleChangeMode}>confirm Group</Button>}
+
+          {groupData.mode !== "phase2" && (
+            <Button onClick={handleChangeMode}>Confirm Group</Button>
+          )}
+
+          {groupData.mode === "phase2" && (
+            <Button onClick={handleShowProjects}>Show Project Definitions</Button>
+          )}
+
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         </>
       ) : (
@@ -203,6 +198,5 @@ const Group = () => {
     </Wrapper>
   );
 };
-
 
 export default Group;

@@ -18,9 +18,14 @@ const findMatchingStudents = async (req, res) => {
             return res.status(400).json({ error: "Classroom ID and Student ID are required" });
         }
 
-
+        const classroom=await Classroom.findById(classroomId)
+        console.log(classroom);
+        
+        const criteriaId=classroom.criteriaId
+        console.log(criteriaId);
+        
         // Fetch criteria for the classroom
-        const criteria = await Criteria.findOne({ classroomId });
+        const criteria = await Criteria.findById(criteriaId)
         if (!criteria) {
             return res.status(400).json({ error: "Criteria not found for this classroom" });
         }
@@ -39,7 +44,7 @@ const findMatchingStudents = async (req, res) => {
             studentId: { $ne: studentId }, // Exclude the current student
             cpi: { $gte: student.cpi - criteria.cpi, $lte: student.cpi + criteria.cpi }, // Match CPI range
             ...(criteria.division === false ? { division: student.division } : {}) // Match division if required
-        }).populate('studentId', 'name email cpi division'); // Populate student details
+        }).populate('studentId'); // Populate student details
 
 
         res.status(200).json({ matchingStudents });
@@ -233,35 +238,29 @@ const selectProjectDefinition = async (req, res) => {
     try {
         const { groupId, facultyProjectId } = req.params;
 
-
         // Validate required fields
         if (!groupId || !facultyProjectId) {
             return res.status(400).json({ error: "Group ID and Faculty Project ID are required" });
         }
 
-
         // Check if the group exists
-        const group = await Group.findById(groupId);
+        const group = await Group.findById(groupId).populate('facultyprojectId');
         if (!group) {
             return res.status(404).json({ error: "Group not found" });
         }
 
-
         // Check if the facultyProject exists
         const facultyProject = await FacultyProject.findById(facultyProjectId)
-            .populate('facultyId', 'name email')  // Populating faculty details
-            .populate('projectId', 'title description');  // Populating project details
-
+            .populate('facultyId')  // Populating faculty details
+            .populate('projectId');  // Populating project details
 
         if (!facultyProject) {
             return res.status(404).json({ error: "Faculty Project not found" });
         }
 
-
         // Update the group with the selected project definition
         group.facultyprojectId = facultyProjectId;
         await group.save();
-
 
         res.status(200).json({
             message: "Project definition selected successfully",
@@ -269,7 +268,7 @@ const selectProjectDefinition = async (req, res) => {
                 _id: group._id,
                 name: group.name,
                 number: group.number,
-                facultyProject: facultyProject, // Includes populated faculty & project details
+                facultyProject: group.facultyprojectId, // Fully populated facultyProject object
                 students: group.students,
                 groupCode: group.groupCode,
                 classroomId: group.classroomId,
@@ -278,11 +277,11 @@ const selectProjectDefinition = async (req, res) => {
             }
         });
 
-
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 const getGroupById = async (req, res) => {
@@ -556,35 +555,41 @@ const getGroupByStudentId = async (req, res) => {
 
 const addGroupChoice = async (req, res) => {
     try {
-        const { groupId, facultyProjectId } = req.body;
+        const { groupId, facultyProjectId } = req.params;
 
-        // Validate input
         if (!groupId || !facultyProjectId) {
             return res.status(400).json({ message: "Group ID and Faculty Project ID are required" });
         }
 
-        // Find the group
         const group = await Group.findById(groupId);
         if (!group) {
             return res.status(404).json({ message: "Group not found" });
         }
 
-        // Check if the faculty project exists
         const facultyProject = await FacultyProject.findById(facultyProjectId);
         if (!facultyProject) {
             return res.status(404).json({ message: "Faculty Project not found" });
         }
 
-        // Prevent duplicate choices
-        if (group.groupchoice.includes(facultyProjectId)) {
-            return res.status(400).json({ message: "Faculty Project already added to group choice" });
+        // Ensure groupchoice is initialized
+        if (!Array.isArray(group.groupchoice)) {
+            group.groupchoice = [];
         }
 
-        // Add facultyProjectId to groupchoice array
+        // Check if the limit of 5 is reached
+        if (group.groupchoice.length >= 5) {
+            return res.status(400).json({ message: "You can only select up to 5 project choices." });
+        }
+
+        // Prevent duplicate entries
+        if (group.groupchoice.includes(facultyProjectId)) {
+            return res.status(400).json({ message: "Faculty Project already added to group choice." });
+        }
+
+        // Add new faculty project choice
         group.groupchoice.push(facultyProjectId);
         group.updatedAt = Date.now();
 
-        // Save changes
         await group.save();
 
         res.status(200).json({ message: "Group choice added successfully", group });
@@ -609,6 +614,7 @@ const getGroupsByClassroomId = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
 
 
 
