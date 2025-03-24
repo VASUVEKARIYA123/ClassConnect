@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import styled from 'styled-components'
 import AddLabTaskButton from "../addLabTaskbut"; 
 import AddStudentButton from "../AddStudentButton/addStudentButton";
 import AddFacultyButton from "../AddFacultyButton/addfacultybutton"; 
-
+// import AddProject from "../addProject";
 // STYLES
 const Wrapper = styled.div`
   display: flex;
@@ -61,7 +62,6 @@ export default () => {
   <AddLabTaskButton/>
   <AddStudentButton/>
   <AddFacultyButton/>
-
   </Wrapper>
   )
 }

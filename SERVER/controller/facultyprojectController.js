@@ -4,7 +4,10 @@ const FacultyProject = require("../models/FacultyProject");
 // Add Faculty-Project Association
 const addFacultyProject = async (req, res) => {
     const { facultyId, projectId, classroomId } = req.body;
-
+    console.log(facultyId);
+    console.log(projectId);
+    
+    
 
     try {
         // Check if the same faculty-project-classroom combination already exists

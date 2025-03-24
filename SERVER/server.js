@@ -34,7 +34,7 @@ app.use("/api/classroom-faculties", classroomfacultyRoutes);
 app.use("/api/classroom-students", classroomstudentRoutes);
 app.use("/api/criteria", criteriaRoutes);
 app.use("/api/classrooms", classroomRoutes);
-app.use("/api/faculty-projectes", facultyprojectRoutes);
+app.use("/api/faculty-projects", facultyprojectRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/lab-tasks", labTaskRoutes);
 
