@@ -181,6 +181,30 @@ const getFacultyProjectsByClassroomAndFacId = async (req, res) => {
 };
 
 
+const getFacultyProjects = async (req, res) => {
+    try {
+        const { classroomId, facultyId } = req.params;
+
+        if (!classroomId || !facultyId) {
+            return res.status(400).json({ error: "Classroom ID and Faculty ID are required" });
+        }
+
+        // Fetch faculty projects matching both classroomId and facultyId
+        const facultyProjects = await FacultyProject.find({ classroomId, facultyId }).select('_id');
+
+        if (!facultyProjects.length) {
+            return res.status(200).json({ facultyProjectIds: [] }); // Return an empty array if no projects found
+        }
+
+        res.status(200).json(facultyProjects.map(fp => ({ _id: fp._id }))); // Return as an array of objects
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { getFacultyProjects };
+
+
 module.exports = {
     addFacultyProject,
     getAllFacultyProjects,
@@ -188,5 +212,6 @@ module.exports = {
     updateFacultyProject,
     deleteFacultyProject,
     projectGroupCount,
-    getFacultyProjectsByClassroomAndFacId
+    getFacultyProjectsByClassroomAndFacId,
+    getFacultyProjects
 };

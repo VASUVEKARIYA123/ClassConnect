@@ -5,7 +5,7 @@ const { auth } = require("../middleware/auth");
 const { authorizeRole } = require("../middleware/authorizeRole");
 // Routes
 router.post("/", auth, authorizeRole(["admin","subadmin"]), classroomController.addClassroom);
-router.get("/classroom/:classroomId/projects", auth, authorizeRole(["admin","subadmin","teacher"]),classroomController.getProjectsByClassroom);
+router.get("/classroom/:classroomId/projects", auth, authorizeRole(["admin","subadmin","teacher","student"]),classroomController.getProjectsByClassroom);
 router.post('/add-project', classroomController.addProjectToClassroom);
 router.post('/remove-project', classroomController.removeProjectFromClassroom);
 router.get("/:classroomId", auth, authorizeRole(["admin","subadmin","teacher","student"]), classroomController.getClassroomById);

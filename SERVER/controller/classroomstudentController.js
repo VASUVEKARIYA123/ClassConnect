@@ -202,6 +202,27 @@ const getClassroomStudentsByClassroomId = async (req, res) => {
     }
 };
 
+const getClassroomStudent = async (req, res) => {
+    try {
+        const { classroomId, studentId } = req.params;
+
+        if (!classroomId || !studentId) {
+            return res.status(400).json({ message: "Classroom ID and Student ID are required" });
+        }
+
+        // Find the classroom student object
+        const classroomStudent = await ClassroomStudent.findOne({ classroomId, studentId });
+
+        if (!classroomStudent) {
+            return res.status(404).json({ message: "Classroom student not found" });
+        }
+
+        res.status(200).json(classroomStudent);
+    } catch (error) {
+        console.error("Error fetching classroom student:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 
 module.exports = {
     addClassroomStudent,
@@ -211,5 +232,6 @@ module.exports = {
     deleteClassroomStudentById,
     getStudentsByClassroomId,
     getClassroomsOfStudent,
-    getClassroomStudentsByClassroomId
+    getClassroomStudentsByClassroomId,
+    getClassroomStudent
 };

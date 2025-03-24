@@ -8,7 +8,7 @@ const GroupSchema = new mongoose.Schema({
     groupchoice: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'FacultyProject',
-        validate: [arrayLimit, '{PATH} exceeds the limit of 5 choices']
+        // validate: [arrayLimit, '{PATH} exceeds the limit of 5 choices']
     }],
     students: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -53,8 +53,8 @@ const GroupSchema = new mongoose.Schema({
 });
 
 // Custom validation function to check array length
-function arrayLimit(val) {
-    return val.length <= 5;
-}
+// function arrayLimit(val) {
+//     return val.length <= 5;
+// }
 
 module.exports = mongoose.model('Group', GroupSchema);

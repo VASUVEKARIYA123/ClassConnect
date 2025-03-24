@@ -187,7 +187,7 @@ function ProjectsContainer() {
             setProjects(data.facultyProject);
         } else {
             console.error("Unexpected data format:", data);
-            setProjects([]);
+            setProjects(data || []);
         }
     })
     .catch((error) => console.error("Error fetching faculty projects:", error));

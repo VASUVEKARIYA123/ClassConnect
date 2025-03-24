@@ -287,11 +287,12 @@ function ProjectsContainer() {
     setSelectedProjectId(projectId);
     setIsDeleteModalOpen(true);
   };
-
+  const role=localStorage.getItem("role")
 
   return (
     <Wrapper>
       <Heading>Project Definitions</Heading>
+      {role==="admin" && (
       <form onSubmit={handleSubmit}>
         <Input type="text" placeholder="Enter Domain" value={domain} onChange={(e) => setDomain(e.target.value)} />
         <Input type="text" placeholder="Enter Definition" value={definition} onChange={(e) => setDefinition(e.target.value)} />
@@ -299,6 +300,7 @@ function ProjectsContainer() {
         <T>Or</T>
         <Button1 type="button" onClick={() => history.push("/import-projects")}>Import Project</Button1>
       </form>
+      )}
       {message && <Message success={success}>{message}</Message>}
       <Table>
         <thead>
@@ -307,7 +309,9 @@ function ProjectsContainer() {
             <Th>Domain</Th>
             <Th>Definition</Th>
             <Th>Max Groups</Th>
+            {role==="admin" && (
             <Th>Actions</Th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -317,10 +321,12 @@ function ProjectsContainer() {
               <Td>{project.domain}</Td>
               <Td>{project.defination}</Td>
               <Td>{project.max_groups}</Td>
+              {role==="admin" && (
               <Td>
                 <Button className="update" onClick={() => openUpdateModal(project)}>Update</Button>
                 <Button className="delete" onClick={() => openDeleteModal(project._id)}>Delete</Button>
             </Td>
+                )}
             </Row>
           ))}
         </tbody>

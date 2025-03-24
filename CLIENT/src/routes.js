@@ -12,11 +12,11 @@ import ImportFaculties from './components/TeacherPost/components/ImportFaculties
 import AddFaculty from "./components/AddFaculty"; 
 import FacByFile from "./components/AddFacByFile/AddFacByFile"
 import AddClassroomProject from "./components/TeacherPost/components/addClassroomProject"
-
-
 import AddFacProject from './components/Projects/components/AddFacProject/AddFacProject';
 import ImportProjects from './components/Projects/components/ImportProject/importProject';
 import Projects from './components/Projects';
+import StudentProjects from './components/Projects/components/StudentProject/StudentProject';
+import NextTask from './components/TeacherPost/components/NextTask';
 export default function Routes() {
   return (
     <BrowserRouter>
@@ -36,6 +36,8 @@ export default function Routes() {
         <Route path="/import-projects" exact component={ImportProjects} />
         <Route path="/add-classroom-project" exact component={AddClassroomProject} />
         <Route path="/addfaculty-projects" exact component={AddFacProject} />
+        <Route path="/stu-projects" exact component={StudentProjects} />
+        <Route path="/match" exact component={NextTask}/>
       </Switch>
     </BrowserRouter>
   );
