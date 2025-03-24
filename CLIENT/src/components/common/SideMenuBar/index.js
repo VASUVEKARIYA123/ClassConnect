@@ -27,6 +27,12 @@ export default function SideMenuBar({ hide }) {
             Add Faculties
           </Link>
         )}
+        {role === "admin" && (
+          <Link to="/projects">
+            Add Projects
+          </Link>
+        )}
+        
       </WrapperMenu>
     </Menu>
   );

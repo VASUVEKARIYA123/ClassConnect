@@ -13,6 +13,7 @@ import AddFaculty from "./components/AddFaculty";
 import FacByFile from "./components/AddFacByFile/AddFacByFile"
 
 
+import AddFacProject from './components/Projects/components/AddFacProject/AddFacProject';
 import ImportProjects from './components/Projects/components/ImportProject/importProject';
 import Projects from './components/Projects';
 export default function Routes() {
@@ -32,6 +33,7 @@ export default function Routes() {
         <Route path="/add-faculty" exact component={AddFaculty} />
         <Route path="/faculty-byfile" exact component={FacByFile} />
         <Route path="/import-projects" exact component={ImportProjects} />
+        <Route path="/addfaculty-projects" exact component={AddFacProject} />
       </Switch>
     </BrowserRouter>
   );
