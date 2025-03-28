@@ -36,6 +36,7 @@ const Title = styled.p`
 
 const Teacher = styled.p`
   padding-left: 1.5vw;
+  padding-bottom: 100vh;
   color: snow;
   font-size: 1.2rem;
   padding-bottom: 3vh;
@@ -84,11 +85,11 @@ export default (props) =>{
         <Title>{props.name}</Title>
         <Teacher>{props.teacher}</Teacher>
 
-        <DivButton>
+        {/* <DivButton>
           <DetailButton status={showDetail} onClick={ (e) => onClick(e)}>
               <IoIosArrowDown size={25} color="snow" />
           </DetailButton>
-        </DivButton>
+        </DivButton> */}
 
 
 

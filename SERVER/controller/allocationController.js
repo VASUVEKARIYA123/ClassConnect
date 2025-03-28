@@ -142,6 +142,7 @@ const allocateProjects = async (req, res) => {
       
       for(const student of students){
         let group = await Group.findOne({students:student.studentId._id});
+        
         for(const project of group.groupchoice){
             group.facultyprojectId = project;
             await group.save();

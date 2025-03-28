@@ -114,12 +114,30 @@ export default () => {
       .catch((err) => console.error("Error fetching matches:", err));
   };
 
+  const linkteacher = `/import-faculties/${classroomId}`;
+  const linkstudent = `/import-students/${classroomId}`
+
   return (
     <>
       <Wrapper>
-        <AddLabTaskButton />
-        <AddStudentButton />
-        <AddFacultyButton />
+        {/* <AddLabTaskButton /> */}
+        {(role === "admin" || role === "teacher") && (
+          <StyledLink to="/create-labtask">
+            Add Lab Task
+          </StyledLink>
+        )}
+        {/* <AddStudentButton /> */}
+        {(role === "admin" || role === "teacher") && (
+          <StyledLink to={linkstudent}>
+            Import Students
+          </StyledLink>
+        )}
+        {/* <AddFacultyButton /> */}
+        {role === "admin" && (
+          <StyledLink to={linkteacher}>
+            Add Faculties
+          </StyledLink>
+        )}
         
         {role === "admin" && (
           <StyledLink to="/add-classroom-project">

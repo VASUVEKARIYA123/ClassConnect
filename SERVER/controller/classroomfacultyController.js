@@ -12,7 +12,7 @@ const addClassroomFaculty = async (req, res) => {
             return res.status(400).json({ message: "Classroom faculty assignment already exists" });
         }
         
-        const classroomFaculty = new ClassroomFaculty({ classroomId, division:"A", facultyId:faculty, max_students:22 });
+        const classroomFaculty = new ClassroomFaculty({ classroomId, division:division?division : "A", facultyId:faculty, max_students:max_students ? max_students : 22 });
         
         await classroomFaculty.save();
     

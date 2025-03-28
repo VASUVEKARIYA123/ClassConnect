@@ -20,7 +20,7 @@ export default ({data}) => {
     <>
     <Wrapper>
       <Header>
-        <Avatar src="https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/s40-c-fbw=1/photo.jpg" />
+        <Avatar src="https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png" />
         <Informations>
           
           <PostOwner>{data.facultiesId[0].firstname+" "+data.facultiesId[0].lastname}</PostOwner>

@@ -9,20 +9,21 @@ const Wrapper = styled.div`
 `;
 
 const StyledAddLabTaskButton = styled.button`
-  padding: 12px 18px;
-  border: none;
-  border-radius: 6px;
-  background: #007bff;
-  color: white;
+  display: inline-block;
+  padding: 10px 15px;
+  margin-top: 10px;
   font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 15px;
-  display: block;
-  width: fit-content;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: white;
+  background-color: #007bff;
+  border-radius: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s;
 
   &:hover {
-    background: #0056b3;
+    background-color: #0056b3;
+    transform: scale(1.05);
   }
 `;
 

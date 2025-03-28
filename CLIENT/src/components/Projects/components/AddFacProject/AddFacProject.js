@@ -222,6 +222,7 @@ function ProjectsContainer() {
             setProjects(data.facultyProject);
         } else {
             console.error("Unexpected data format:", data);
+            console.log(data);
             setProjects(data || []);
         }
     })
@@ -376,13 +377,18 @@ function ProjectsContainer() {
         }
 
         // ✅ Step 3: Update State & Close Modal
-        setProjects(
+
+          console.log("Projects:", projects);
+          
+          setProjects(
             projects.map((proj) =>
                 proj.projectId._id === projectId
                     ? { ...proj, projectId: { ...proj.projectId, domain, defination: definition, max_groups } }
                     : proj
             ) 
         );
+        
+        
         
         setDomain("");
         setDefinition("");

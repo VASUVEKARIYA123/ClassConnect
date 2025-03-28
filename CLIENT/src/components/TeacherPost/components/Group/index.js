@@ -18,8 +18,9 @@ const Group = () => {
 
   const fetchGroup = async () => {
     const studentId = localStorage.getItem("facultiesId");
+    const classroomId = localStorage.getItem("classroomId");
     try {
-      const response = await fetch(`http://localhost:5000/api/groups/student/${studentId}`, {
+      const response = await fetch(`http://localhost:5000/api/groups/student/${studentId}/${classroomId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

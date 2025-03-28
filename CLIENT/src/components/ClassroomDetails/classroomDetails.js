@@ -345,6 +345,7 @@ export default function ClassroomDetails() {
       if (deleteResponse.ok) {
         setFaculties(faculties.filter((f) => f._id !== facultyId));
         console.log("Faculty removed from classroom successfully!");
+        window.location.reload(); // ✅ Refresh UI
       } else {
         console.error("Failed to delete faculty");
       }
@@ -475,7 +476,7 @@ export default function ClassroomDetails() {
           >
             Change Division
           </InfoButton>
-                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties.facultyId._id)}>
+                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties._id)}>
                          Delete
                        </DeleteButton>
                      </ButtonWrapper>
