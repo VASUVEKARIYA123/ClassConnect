@@ -17,6 +17,8 @@ const importStudents = async (req, res) => {
 
         // Convert sheet data to student objects
         const students = await Promise.all(sheetData.map(async (row) => {
+            console.log(row.birthDate);
+            
             const hashedPassword = await bcrypt.hash(row.birthDate.toString(), 10);
             return {
                 studentId: row.studentId,
@@ -37,30 +39,31 @@ const importStudents = async (req, res) => {
 };
 // Add a new student
 const addStudent = async (req, res) => {
-    const { studentId, firstname, lastname, birthDate } = req.body;
+    // const { studentId, firstname, lastname, birthDate } = req.body;
 
+    // console.log(birthDate);
+    
+    // try {
+    //     // Check if student ID already exists
+    //     const existingStudent = await Student.findOne({ studentId });
+    //     if (existingStudent) {
+    //         return res.status(400).json({ message: "Student ID already exists" });
+    //     }
+            // const bd = excelSerialToDate1(birthDate-1);
+            // const hashedPassword = await bcrypt.hash(bd, 10);
+            // console.log(birthDate);
+            // console.log(hashedPassword);
 
-    try {
-        // Check if student ID already exists
-        const existingStudent = await Student.findOne({ studentId });
-        if (existingStudent) {
-            return res.status(400).json({ message: "Student ID already exists" });
-        }
-        const bd = birthDate;
-        const hashedPassword = await bcrypt.hash(bd, 10);
-        console.log(birthDate);
-        console.log(hashedPassword);
-
-        const verify = await bcrypt.compare(bd,hashedPassword);
-        console.log(verify);
+        //     const verify = await bcrypt.compare(bd,hashedPassword);
+        //     console.log(verify);
         
-        const student = new Student({ studentId, firstname, lastname, birthDate ,password :hashedPassword});
-        await student.save();
-        res.status(201).json({ message: "Student created successfully" });
-    }
-    catch (err) {
-        res.status(500).json({ message: "Server Error: " + err });
-    }
+        // const student = new Student({ studentId, firstname, lastname, birthDate:bb ,password :hashedPassword});
+        // await student.save();
+        res.status(201).json({ message: "not implemented" });
+    // }
+    // catch (err) {
+    //     res.status(500).json({ message: "Server Error: " + err });
+    // }
 };
 
 
@@ -148,6 +151,25 @@ const deleteStudentById = async (req, res) => {
         res.status(500).json({ message: "Server Error: " + err });
     }
 };
+
+function excelSerialToDate1(serial) {
+    const excelEpoch = new Date(1900, 0, 1);
+    const date = new Date(excelEpoch.getTime() + (serial - 1) * 86400000);
+    
+    // Formatting the date as DD-MM-YYYY
+    const formattedDate = date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+
+    return formattedDate;
+}
+
+function excelSerialToDate2(serial) {
+    const excelEpoch = new Date(1900, 0, 1); // Excel's base date (Jan 1, 1900)
+    return new Date(excelEpoch.getTime() + (serial - 1) * 86400000);
+}
   
 const importStudentsWithClassroom = async (req, res) => {
     try {
@@ -173,15 +195,17 @@ const importStudentsWithClassroom = async (req, res) => {
         for (const row of sheetData) {
             // 🔹 Check if student already exists
             let student = await Student.findOne({ studentId: row.studentId });
-
+            console.log(excelSerialToDate2(row.birthDate-1));
             if (!student) {
                 // 🔹 If student does not exist, create and insert into Student collection
-                const hashedPassword = await bcrypt.hash(row.birthDate.toString(), 10);
+                
+                
+                const hashedPassword = await bcrypt.hash(excelSerialToDate1(row.birthDate-1), 10);
                 student = new Student({
                     studentId: row.studentId,
                     firstname: row.firstname,
                     lastname: row.lastname,
-                    birthDate: new Date(row.birthDate),
+                    birthDate: excelSerialToDate2(row.birthDate),
                     password: hashedPassword,
                 });
 

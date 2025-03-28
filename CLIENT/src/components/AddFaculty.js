@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
+import Header from "./Header";
 const FormWrapper = styled.div`
   max-width: 400px;
   margin: auto;
@@ -88,6 +88,9 @@ export default function AddFaculty() {
   };
 
   return (
+    <div>
+      <Header />
+    
     <FormWrapper>
       <Title>Add Faculty</Title>
       <Form onSubmit={handleSubmit}>
@@ -106,5 +109,6 @@ export default function AddFaculty() {
         <SubmitButton type="submit">Add Faculty</SubmitButton>
       </Form>
     </FormWrapper>
+    </div>
   );
 }

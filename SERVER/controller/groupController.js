@@ -527,7 +527,7 @@ const deleteGroup = async (req, res) => {
 
 const getGroupByStudentId = async (req, res) => {
     try {
-        const { studentId } = req.params;
+        const { studentId, classroomId } = req.params;
 
 
         if (!studentId) {
@@ -535,7 +535,7 @@ const getGroupByStudentId = async (req, res) => {
         }
 
 
-        const group = await Group.findOne({ students: studentId })
+        const group = await Group.findOne({ students: studentId, classroomId })
             .populate('facultyprojectId')
             .populate('students')
             .populate('classroomId');

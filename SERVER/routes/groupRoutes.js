@@ -17,5 +17,5 @@ router.delete("/:groupId", auth, authorizeRole(["admin","subadmin","teacher","st
 router.get("/:groupId", auth, authorizeRole(["admin","subadmin","teacher","student"]), groupController.getGroupById);
 router.get("/classroom/:classroomId", auth, authorizeRole(["admin","subadmin","teacher","student"]), groupController.getGroupsByClassroomId);
 router.get("/", auth, authorizeRole(["admin","subadmin","teacher"]), groupController.getAllGroups);
-    router.get('/student/:studentId',auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.getGroupByStudentId);
+    router.get('/student/:studentId/:classroomId',auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.getGroupByStudentId);
 module.exports = router;

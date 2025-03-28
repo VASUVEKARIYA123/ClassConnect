@@ -11,9 +11,9 @@ const createLabTask = async (req, res) => {
       return res.status(404).json({ message: "Classroom not found" });
     }
    
-    if (classroom.mode !== "phase3") {
-      return res.status(403).json({ message: "LabTask creation is not allowed. Classroom mode must be 'phase3'." });
-    }
+    // if (classroom.mode !== "phase3") {
+    //   return res.status(403).json({ message: "LabTask creation is not allowed. Classroom mode must be 'phase3'." });
+    // }
     
     const newLabTask = new LabTask({
       classroomId,
