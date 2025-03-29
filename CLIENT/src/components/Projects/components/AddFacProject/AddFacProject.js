@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+import Header from "../../../Header";
 
 const Wrapper = styled.div`
   max-width: 1000px;
@@ -13,8 +14,8 @@ const Wrapper = styled.div`
   text-align: center;
 `;
 
-const Heading = styled.h2`
-  margin-top:35px;
+const Heading1 = styled.h2`
+   margin-top:35px;
   color: #333;
   font-size: 1.8rem;
   margin-bottom: 20px;
@@ -202,13 +203,16 @@ function ProjectsContainer() {
   // Fetch existing project definitions
   useEffect(() => {
     const facultyId = localStorage.getItem("facultiesId");  
+    // console.log(facultyId);
+    
     const classroomId = localStorage.getItem("classroomId"); 
-
+    // console.log(classroomId);
+    
     if (!facultyId || !classroomId) {
         console.error("Missing facultyId or classroomId.");
         return;
     }
-
+    
     fetch(`http://localhost:5000/api/faculty-projects/fp/${facultyId}/${classroomId}`, {
         method: "GET",
         headers: {
@@ -220,10 +224,16 @@ function ProjectsContainer() {
         console.log("Faculty Projects Response:", data);
         if (Array.isArray(data.facultyProject)) {
             setProjects(data.facultyProject);
+            // console.log(data.facultyProject);
         } else {
-            console.error("Unexpected data format:", data);
+            // console.error("Unexpected data format:", data);
             console.log(data);
-            setProjects(data || []);
+            if(data.messgae===undefined){
+              setProjects(data)
+            }
+            else{
+              setProjects([])
+            }
         }
     })
     .catch((error) => console.error("Error fetching faculty projects:", error));
@@ -236,7 +246,7 @@ function ProjectsContainer() {
     })
     .then((response) => response.json())
     .then((data) => {
-        console.log("Classroom Projects Response:", data);
+        // console.log("Classroom Projects Response:", data);
         setClassroomProjects(Array.isArray(data.projects) ? data.projects : []);
     })
     .catch((error) => console.error("Error fetching classroom projects:", error));
@@ -291,7 +301,7 @@ function ProjectsContainer() {
       });
 
       const facultyData = await facultyResponse.json();
-      console.log(facultyData);
+      // console.log(facultyData);
       
       if (!facultyResponse.ok) {
         setMessage(facultyData.error || "Failed to associate project with faculty.");
@@ -378,7 +388,7 @@ function ProjectsContainer() {
 
         // ✅ Step 3: Update State & Close Modal
 
-          console.log("Projects:", projects);
+          // console.log("Projects:", projects);
           
           setProjects(
             projects.map((proj) =>
@@ -481,12 +491,15 @@ const filteredProjects = selectedDomain
     ? classroomProjects.filter((project) => project.domain === selectedDomain)
     : [];
 
-console.log("Filtered Projects:", filteredProjects);
+// console.log("Filtered Projects:", filteredProjects);
 
 
   return (
+    <>
+    <Header/>
     <Wrapper>
-      <Heading>Project Definitions</Heading>
+      {/* <Header/> */}
+      <Heading1>Project Definitions</Heading1>
       <form onSubmit={handleSubmit}>
         <Input type="text" placeholder="Enter Domain" value={domain} onChange={(e) => setDomain(e.target.value)} />
         <Input type="text" placeholder="Enter Definition" value={definition} onChange={(e) => setDefinition(e.target.value)} />
@@ -516,7 +529,7 @@ console.log("Filtered Projects:", filteredProjects);
         </tbody>
       </Table>
 
-      <Heading>Classroom Projects (Added by Admin)</Heading>
+      <Heading1>Classroom Projects (Added by Admin)</Heading1>
 
       <h2>Select a Project Domain</h2>
       {/* Dropdown for selecting domain */}
@@ -574,6 +587,7 @@ console.log("Filtered Projects:", filteredProjects);
     </div>
 
     </Wrapper>
+    </>
   );
 }
 

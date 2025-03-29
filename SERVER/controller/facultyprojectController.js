@@ -171,9 +171,10 @@ const getFacultyProjectsByClassroomAndFacId = async (req, res) => {
             .populate("facultyId", "firstname lastname") // Optional: Populate faculty details
 
         if (!facultyProjects || facultyProjects.length === 0) {
-            return res.status(404).json({ message: "No faculty projects found for the given criteria" });
+            return res.status(404).json({messgae:"Projects noot found" });
         }
-
+        // console.log(facultyProjects);
+        
         res.json(facultyProjects);
     } catch (error) {
         res.status(500).json({ message: "Server Error: " + error.message });

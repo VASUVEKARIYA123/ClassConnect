@@ -95,140 +95,165 @@ function StudentProjects() {
 
   useEffect(() => {
     if (!classroomId || !studentId) {
-      setMessage("No classroom or student ID found.");
-      return;
+        setMessage("No classroom or student ID found.");
+        return;
     }
 
-    //   console.log("Fetching group ID for student:", studentId);
-    fetch(`http://localhost:5000/api/groups/student/${studentId}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    fetch(`http://localhost:5000/api/groups/student/${studentId}/${classroomId}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
-      .then((res) => res.json())
-      .then((data) => {
-        //   console.log("Group Data:", data);
-        if (!data._id) {
-          setMessage("Group not found for this student.");
-          return;
-        }
-        const groupId = data._id;
-        localStorage.setItem("groupId", data._id);
-        //   console.log("Fetching faculties for classroom:", classroomId);
-        fetch(
-          `http://localhost:5000/api/classroom-faculties/faculties-of-classroom/${classroomId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        )
-          .then((res) => res.json())
-          .then((facultiesData) => {
-            //   console.log("Faculties Data:", facultiesData);
-            if (!Array.isArray(facultiesData.faculties)) {
-              setMessage("Invalid faculty data received.");
-              return;
+        .then((res) => res.json())
+        .then((data) => {
+            if (!data._id) {
+                setMessage("Group not found for this student.");
+                return;
             }
-            setFaculties(facultiesData.faculties);
-            const updatedFacultyProjects = {};
 
-            Promise.all(
-              facultiesData.faculties.map((faculty) =>
-                fetch(
-                  `http://localhost:5000/api/faculty-projects/${classroomId}/${faculty.facultyId._id}`,
-                  {
-                    method: "GET",
-                    headers: {
-                      Authorization: `Bearer ${localStorage.getItem("token")}`,
-                      "Content-Type": "application/json",
-                    },
-                  }
-                )
-                  .then((res) => res.json())
-                  .then((projects) => {
-                    //   console.log(`Projects for faculty ${faculty.facultyId._id}:`, projects);
-                    updatedFacultyProjects[faculty.facultyId._id] = projects;
-                    //   console.log(updatedFacultyProjects);
+            const groupId = data._id;
+            localStorage.setItem("groupId", groupId);
 
-                    if (Array.isArray(projects)) {
-                      projects.forEach((project) => {
-                        console.log(
-                          "Fetching full details for faculty project:",
-                          project._id
-                        );
-                        fetch(
-                          `http://localhost:5000/api/faculty-projects/${project._id}`,
-                          {
-                            method: "GET",
-                            headers: {
-                              Authorization: `Bearer ${localStorage.getItem(
-                                "token"
-                              )}`,
-                              "Content-Type": "application/json",
-                            },
-                          }
-                        )
-                          .then((res) => res.json())
-
-                          .then((projectDetails) => {
-                            console.log(
-                              "Project Details Fetched:",
-                              projectDetails
-                            );
-                            setFacultyProjectDetails((prev) => ({
-                              ...prev,
-                              [project._id]: projectDetails,
-                            }));
-                          })
-                          .catch((err) =>
-                            console.error(
-                              `Error fetching project details: ${project._id}`,
-                              err
-                            )
-                          );
-                      });
-                    } else {
-                      console.log("Not Array");
+            // ✅ Step 1: Fetch Student's Division from Classroom-Student
+            fetch(`http://localhost:5000/api/classroom-students/${classroomId}/${studentId}`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            })
+                .then((res) => res.json())
+                .then((studentData) => {
+                    if (!studentData.division) {
+                        setMessage("Student division not found.");
+                        return;
                     }
-                  })
-                  .catch((err) =>
-                    console.error(
-                      `Error fetching projects for faculty ${faculty.facultyId._id}:`,
-                      err
-                    )
-                  )
-              )
-            ).then(() => {
-              setFacultyProjects(updatedFacultyProjects);
-              console.log("Updated facultyProjects:", updatedFacultyProjects);
-            });
-          })
-          .catch((err) => {
-            console.error("Error fetching faculties:", err);
-            setMessage("Error fetching faculties.");
-          });
-      })
-      .catch((err) => {
-        console.error("Error fetching group:", err);
-        setMessage("Error fetching group.");
-      });
-  }, []);
 
-  const handleSelection = (facultyId, projectId, domain, defination) => {
-    if (selectedChoices.some((choice) => choice.projectId === projectId)) {
+                    const studentDivision = studentData.division; // ✅ Student's division
+
+                    // ✅ Step 2: Fetch Faculties of the Classroom
+                    fetch(`http://localhost:5000/api/classroom-faculties/faculties-of-classroom/${classroomId}`, {
+                        method: "GET",
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    })
+                        .then((res) => res.json())
+                        .then((facultiesData) => {
+                            if (!Array.isArray(facultiesData.faculties)) {
+                                setMessage("Invalid faculty data received.");
+                                return;
+                            }
+                            // console.log(facultiesData.faculties[0].division);
+                            
+                            // ✅ Step 3: Filter faculties by division (exclude admins)
+                            const filteredFaculties = facultiesData.faculties.filter(
+                                faculty =>
+                                    faculty.facultyId.role !== "admin" && 
+                                    faculty.division === studentDivision // ✅ Match division
+                            );
+
+                            setFaculties(filteredFaculties);
+                            
+                            const updatedFacultyProjects = {};
+
+                            // ✅ Step 4: Fetch Projects Only for These Faculties
+                            Promise.all(
+                                filteredFaculties.map((faculty) =>
+                                    fetch(`http://localhost:5000/api/faculty-projects/${classroomId}/${faculty.facultyId._id}`, {
+                                        method: "GET",
+                                        headers: {
+                                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                            "Content-Type": "application/json",
+                                        },
+                                    })
+                                        .then((res) => res.json())
+                                        .then((projects) => {
+                                            updatedFacultyProjects[faculty.facultyId._id] = projects;
+
+                                            if (Array.isArray(projects)) {
+                                                projects.forEach((project) => {
+                                                    fetch(`http://localhost:5000/api/faculty-projects/${project._id}`, {
+                                                        method: "GET",
+                                                        headers: {
+                                                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                                            "Content-Type": "application/json",
+                                                        },
+                                                    })
+                                                        .then((res) => res.json())
+                                                        .then((projectDetails) => {
+                                                            setFacultyProjectDetails((prev) => ({
+                                                                ...prev,
+                                                                [project._id]: projectDetails,
+                                                            }));
+                                                        })
+                                                        .catch((err) =>
+                                                            console.error(`Error fetching project details: ${project._id}`, err)
+                                                        );
+                                                });
+                                            }
+                                        })
+                                        .catch((err) =>
+                                            console.error(`Error fetching projects for faculty ${faculty.facultyId._id}:`, err)
+                                        )
+                                )
+                            ).then(() => {
+                                setFacultyProjects(updatedFacultyProjects);
+                            });
+                        })
+                        .catch((err) => {
+                            console.error("Error fetching faculties:", err);
+                            setMessage("Error fetching faculties.");
+                        });
+                })
+                .catch((err) => {
+                    console.error("Error fetching student division:", err);
+                    setMessage("Error fetching student division.");
+                });
+        })
+        .catch((err) => {
+            console.error("Error fetching group:", err);
+            setMessage("Error fetching group.");
+        });
+}, []);
+
+
+
+const handleSelection = async (facultyId, projectId, domain, defination) => {
+  if (selectedChoices.some((choice) => choice.projectId === projectId)) {
       return setMessage("Cannot select the same project twice.");
-    }
-  
-    if (selectedChoices.length >= 5) {
+  }
+
+  if (selectedChoices.length >= 5) {
       return setMessage("You can only select 5 projects.");
-    }
-  
-    setSelectedChoices((prev) => [
-      ...prev,
-      { facultyId, projectId, domain, defination },
-    ]);
-  };
+  }
+
+  try {
+      // 🔍 Fetch faculty details from the API
+      const res = await fetch(`http://localhost:5000/api/faculties/${facultyId}`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+          },
+      });
+
+      if (!res.ok) {
+          throw new Error("Failed to fetch faculty details.");
+      }
+
+      const faculty = await res.json();
+
+      setSelectedChoices((prev) => [
+          ...prev,
+          {
+              facultyId,
+              projectId,
+              domain,
+              defination,
+              faculty, // ✅ Storing the full faculty object
+          },
+      ]);
+  } catch (error) {
+      console.error("Error fetching faculty details:", error);
+      setMessage("Error fetching faculty details.");
+  }
+};
+
   
   const handleUnselect = (projectId) => {
     setSelectedChoices((prev) =>
@@ -237,30 +262,47 @@ function StudentProjects() {
   };
   
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedChoices.length !== 5) {
         return setMessage("You must select exactly 5 projects.");
     }
 
     const groupId = localStorage.getItem("groupId");
-    selectedChoices.forEach(({ facultyId, projectId }) => {
-        console.log("Submitting selection:", { groupId, facultyId, projectId });
+    try {
+        await Promise.all(
+            selectedChoices.map(async ({ facultyId, projectId }) => {
+                console.log("Submitting selection:", { groupId, facultyId, projectId });
 
-        fetch(`http://localhost:5000/api/groups/addGroupChoice/${groupId}/${projectId}`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json",
-            },
-        })
-        .then((res) => res.json())
-        .then((data) => console.log("Selection response:", data))
-        .catch((err) => console.error("Error selecting project:", err));
-    });
+                const res = await fetch(`http://localhost:5000/api/groups/addGroupChoice/${groupId}/${projectId}`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
 
-    setMessage("Projects submitted successfully!");
-    setSubmitted(true);
+                if (!res.ok) {
+                    throw new Error("Failed to submit project selection.");
+                }
+
+                const data = await res.json();
+                console.log("Selection response:", data);
+            })
+        );
+
+        setMessage("Projects submitted successfully!");
+        setSubmitted(true);
+
+        // ✅ Redirect to the classroom page after a short delay
+        setTimeout(() => {
+            window.location.href = `/tasks/${classroomId}`; // Replace with the correct route
+        }, 1500);
+    } catch (err) {
+        console.error("Error selecting project:", err);
+        setMessage("Error submitting projects. Please try again.");
+    }
 };
+
 
 
   return (
@@ -330,19 +372,24 @@ function StudentProjects() {
         </Table>
       </div>
     ))}
+  
     <Heading>Selected Projects</Heading>
     {selectedChoices.length > 0 ? (
       <Table>
         <thead>
           <tr>
+
+            <Th>Faculty</Th>
             <Th>Domain</Th>
             <Th>Definition</Th>
             <Th>Action</Th>
           </tr>
         </thead>
         <tbody>
-          {selectedChoices.map(({ facultyId, projectId, domain, defination }) => (
+          {selectedChoices.map(({ facultyId, projectId, domain, defination,faculty }) => (
             <Row key={projectId}>
+
+              <Td>{faculty.firstname} {faculty.stname}</Td>
               <Td>{domain}</Td>
               <Td>{defination}</Td>
               <Td>
