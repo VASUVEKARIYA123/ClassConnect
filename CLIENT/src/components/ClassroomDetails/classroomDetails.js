@@ -288,6 +288,8 @@ export default function ClassroomDetails() {
   };
 
   const handleDeleteFaculty = async (facultyId) => {
+    console.log(facultyId);
+    
     const confirmDelete = window.confirm(
       "Are you sure you want to remove this faculty?"
     );
@@ -300,40 +302,10 @@ export default function ClassroomDetails() {
         console.error("Classroom ID is missing from localStorage");
         return;
       }
-  
-      // ✅ Step 1: Fetch classroom faculties
-      const response = await fetch(
-        `http://localhost:5000/api/classroom-faculties/classroom-faculty/${classroomId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-  
-      if (!response.ok) {
-        console.error("Failed to fetch classroom faculties");
-        return;
-      }
-  
-      const data = await response.json();
-      // console.log("Hi");
-      
-      
-      // ✅ Step 2: Find the correct classroomFacultyId
-      let classroomFacultyId;
-      const datalen = data.noofcf;
-      for (let i = 0; i < datalen; i++) {
-        classroomFacultyId = data.classroomFaculties[i]._id;
-        if (data.classroomFaculties[i].facultyId === facultyId) {
-          break;
-        }
-      }
-      // console.log(classroomFacultyId);
       
       // ✅ Step 3: Send DELETE request
       const deleteResponse = await fetch(
-        `http://localhost:5000/api/classroom-faculties/${classroomFacultyId}`,
+        `http://localhost:5000/api/classroom-faculties/${facultyId}`,
         {
           method: "DELETE",
           headers: {
@@ -355,6 +327,8 @@ export default function ClassroomDetails() {
   };
   
   const handleDeleteStudent = async (studentId) => {
+    console.log(studentId);
+    
     const confirmDelete = window.confirm(
       "Are you sure you want to remove this student?"
     );
@@ -367,34 +341,9 @@ export default function ClassroomDetails() {
         console.error("Classroom ID is missing from localStorage");
         return;
       }
-
-      const response = await fetch(
-        `http://localhost:5000/api/classroom-students/classroom-student/${classroomId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        console.error("Failed to fetch classroom students");
-        return;
-      }
-
-      const data = await response.json();
-
-      let classroomStudentId;
-      const datalen = data.noofcs;
-      for (let i = 0; i < datalen; i++) {
-        classroomStudentId = data.classroomStudents[i]._id;
-        if (data.classroomStudents[i].studentId._id === studentId) {
-          break;
-        }
-      }
       
       const deleteResponse = await fetch(
-        `http://localhost:5000/api/classroom-students/${classroomStudentId}`,
+        `http://localhost:5000/api/classroom-students/${studentId}`,
         {
           method: "DELETE",
           headers: {
@@ -406,6 +355,7 @@ export default function ClassroomDetails() {
       if (deleteResponse.ok) {
         setStudents(students.filter((s) => s._id !== studentId));
         console.log("Student removed from classroom successfully!");
+        window.location.reload()
       } else {
         console.error("Failed to delete student");
       }
@@ -477,7 +427,7 @@ export default function ClassroomDetails() {
             Change Division
           </InfoButton>
                        <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties._id)}>
-                         Delete
+                         Delete 
                        </DeleteButton>
                      </ButtonWrapper>
                    )}
@@ -500,7 +450,7 @@ export default function ClassroomDetails() {
           >
             Change Division
           </InfoButton>
-                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties.facultyId._id)}>
+                       <DeleteButton onClick={() => handleDeleteFaculty(classroomFaculties._id)}>
                          Delete
                        </DeleteButton>
                      </ButtonWrapper>
@@ -529,7 +479,7 @@ export default function ClassroomDetails() {
                 {(role === "teacher" || role === "admin") && (
                   <ButtonWrapper>
                     <InfoButton onClick={() => handleStudentInfo(classroomStudent.studentId._id)}>Info</InfoButton>
-                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent.student._id)}>Delete</DeleteButton>
+                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent._id)}>Delete</DeleteButton>
                   </ButtonWrapper>
                 )}
               </ListItem>
@@ -545,7 +495,7 @@ export default function ClassroomDetails() {
                 {(role === "teacher" || role === "admin") && (
                   <ButtonWrapper>
                     <InfoButton onClick={() => handleStudentInfo(classroomStudent.studentId._id)}>Info</InfoButton>
-                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent.student._id)}>Delete</DeleteButton>
+                    <DeleteButton onClick={() => handleDeleteStudent(classroomStudent._id)}>Delete</DeleteButton>
                   </ButtonWrapper>
                 )}
               </ListItem>
@@ -566,6 +516,7 @@ export default function ClassroomDetails() {
         <ModalContent>
           <h3>Student Information</h3>
           
+          <p><strong>ID:</strong> {selectedStudent.studentId.studentId}</p>
           <p><strong>First Name:</strong> {selectedStudent.studentId.firstname}</p>
           <p><strong>Last Name:</strong> {selectedStudent.studentId.lastname}</p>
           
@@ -575,15 +526,16 @@ export default function ClassroomDetails() {
           )}
       
           {/* 🔹 Division Dropdown */}
-          <p><strong>Division:</strong></p>
-          <select
-            value={selectedStudent.division} // Default value is the current division
-            onChange={(e) => setSelectedStudent({ ...selectedStudent, division: e.target.value })}
-          >
-            <option value="A">A</option>
-            <option value="B">B</option>
-          </select>
-          
+          {role==="admin" && (
+          <><p><strong>Division:</strong></p><select
+                value={selectedStudent.division} // Default value is the current division
+                onChange={(e) => setSelectedStudent({ ...selectedStudent, division: e.target.value })}
+              >
+                <option value="A">A</option>
+                <option value="B">B</option>
+              </select></>
+          )}     
+          <br></br>
           <ApplyButton onClick={handleApplyChanges}>Apply Changes</ApplyButton>
           <CloseButton onClick={() => setSelectedStudent(null)}>Close</CloseButton>
         </ModalContent>

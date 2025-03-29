@@ -56,6 +56,12 @@ export default ({data}) => {
   }, [tasks]); // Run
 
   const role=localStorage.getItem("role")
+  const Container = ({ id, data, setShowProjectDefinitions }) => {
+    const handleSubmit = () => {
+        // After successful submission, hide "Show Project Definitions"
+        setShowProjectDefinitions(false);
+    };
+};
 
   return (
     <>

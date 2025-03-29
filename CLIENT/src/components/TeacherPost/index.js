@@ -48,10 +48,11 @@ export default function TeacherPost() {
     <>
       <Header />
     
-   
       <Banner background={classrooms.background} id={classrooms._id} name={classrooms.name} teacher={classrooms.description} />
 
-      <Container id={classrooms._id} data={classrooms._id} />
+      {/* ✅ Pass setShowProjectDefinitions as a prop */}
+      <Container id={classrooms._id} data={classrooms._id}/>
+
     </>
   );
 }

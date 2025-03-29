@@ -13,7 +13,7 @@ router.get("/classrooms", auth, authorizeRole(["admin","subadmin","teacher","stu
 router.get("/:classroomstudentId", auth, authorizeRole(["admin","subadmin","teacher","student"]),  classroomStudentController.getClassroomStudentById);
 router.get("/", auth, authorizeRole(["admin","subadmin","teacher","student"]),  classroomStudentController.getAllClassroomStudents);
 router.put("/:classroomstudentId",  auth, authorizeRole(["admin","subadmin"]), classroomStudentController.updateClassroomStudent);
-router.delete("/:classroomstudentId",  auth, authorizeRole(["admin","subadmin"]), classroomStudentController.deleteClassroomStudentById);
+router.delete("/:classroomstudentId",  auth, authorizeRole(["admin","subadmin","teacher"]), classroomStudentController.deleteClassroomStudentById);
 router.get("/classroom/:classroomId", auth, authorizeRole(["admin","subadmin", "teacher","student"]), classroomStudentController.getStudentsByClassroomId);
 
  
