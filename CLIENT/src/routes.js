@@ -20,6 +20,7 @@ import ImportProjects from './components/Projects/components/ImportProject/impor
 import Projects from './components/Projects';
 import StudentProjects from './components/Projects/components/StudentProject/StudentProject';
 import NextTask from './components/TeacherPost/components/NextTask';
+import E404 from './components/404';
 export default function Routes() {
   return (
     <BrowserRouter>
@@ -42,6 +43,8 @@ export default function Routes() {
         <Route path="/stu-projects" exact component={StudentProjects} />
         <Route path="/match" exact component={NextTask}/>
         <Route path="/allocation" exact component={Allocation} />
+        {/* route for 404 */}
+        <Route path="*" exact component={E404} />
       </Switch>
     </BrowserRouter>
   );
