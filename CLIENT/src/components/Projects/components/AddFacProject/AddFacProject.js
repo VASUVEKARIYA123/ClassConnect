@@ -329,7 +329,7 @@ function ProjectsContainer() {
     setSelectedProject(project);
     setDomain(project.projectId.domain);
     setDefinition(project.projectId.defination);
-    setMax_groups(project.projectId.max_groups);
+    setMax_groups(1);
     setIsModalOpen(true);
   };
 

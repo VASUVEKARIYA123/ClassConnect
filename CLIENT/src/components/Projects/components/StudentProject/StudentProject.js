@@ -286,7 +286,21 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
                 }
 
                 const data = await res.json();
-                console.log("Selection response:", data);
+
+                const res1 = await fetch(`http://localhost:5000/api/groups/full/${groupId}`, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ mode : "phase3" })
+                });
+
+                if (!res1.ok) {
+                    throw new Error("Failed to change mode of group.");
+                }
+
+                // console.log("Selection response:", data);
             })
         );
 
@@ -307,8 +321,40 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
 
   return (
   <Wrapper>
+    <Heading>Selected Projects</Heading>
+    <p style={{color : "red"}}>this is your project choice filling so fill choice wisely and fill accourding to precedence </p>
+    {selectedChoices.length > 0 ? (
+      <Table>
+        <thead>
+          <tr>
+
+            <Th>Faculty</Th>
+            <Th>Domain</Th>
+            <Th>Definition</Th>
+            <Th>Action</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {selectedChoices.map(({ facultyId, projectId, domain, defination,faculty }) => (
+            <Row key={projectId}>
+
+              <Td>{faculty.firstname} {faculty.stname}</Td>
+              <Td>{domain}</Td>
+              <Td>{defination}</Td>
+              <Td>
+                <Button onClick={() => handleUnselect(projectId)}>Unselect</Button>
+              </Td>
+            </Row>
+          ))}
+        </tbody>
+      </Table>
+    ) : (
+      <p>No projects selected.</p>
+    )}
+    <Button onClick={handleSubmit}>Submit Selections</Button>
+    {message && <Message success={submitted}>{message}</Message>} 
     <Heading>Classroom Projects</Heading>
-    {message && <Message success={submitted}>{message}</Message>}
+    
     {faculties.map((faculty) => (
       <div key={faculty.facultyId._id}>
         <h3>
@@ -373,36 +419,7 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
       </div>
     ))}
   
-    <Heading>Selected Projects</Heading>
-    {selectedChoices.length > 0 ? (
-      <Table>
-        <thead>
-          <tr>
-
-            <Th>Faculty</Th>
-            <Th>Domain</Th>
-            <Th>Definition</Th>
-            <Th>Action</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedChoices.map(({ facultyId, projectId, domain, defination,faculty }) => (
-            <Row key={projectId}>
-
-              <Td>{faculty.firstname} {faculty.stname}</Td>
-              <Td>{domain}</Td>
-              <Td>{defination}</Td>
-              <Td>
-                <Button onClick={() => handleUnselect(projectId)}>Unselect</Button>
-              </Td>
-            </Row>
-          ))}
-        </tbody>
-      </Table>
-    ) : (
-      <p>No projects selected.</p>
-    )}
-    <Button onClick={handleSubmit}>Submit Selections</Button>
+    
   </Wrapper>
 );
 }

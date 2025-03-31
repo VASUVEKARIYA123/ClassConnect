@@ -4,6 +4,7 @@ import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { useEffect } from "react";
 import Phase1 from "./phase1";
 import Phase2 from "./phase2";
+import Phase3 from "./phase3";
 
 const AllocationStatus = () => {
   const classroomId = localStorage.getItem("classroomId");
@@ -50,8 +51,17 @@ const AllocationStatus = () => {
       { classroom.mode === "phase1" ? (
         <Phase1 />
         ) : (
-        <Phase2 />
-        ) 
+        classroom.mode === "phase2" ? (
+          <Phase2 />
+        ) : (
+        classroom.mode === "phase3" ? (
+          <Phase3 />
+        ) : (
+          <p style={{color : "green" }}>
+            Allocation has been done for all student.
+          </p>
+        ) )
+      )
       }
       
     </Container>

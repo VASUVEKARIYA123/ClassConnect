@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { useHistory } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
 import Header from "../Header";
@@ -66,6 +66,7 @@ const Message = styled.p`
   color: ${({ success }) => (success ? "green" : "red")};
 `;
 
+// Clear localStorage on component mount
 
 export default function Login() {
   const [credentials, setCredentials] = useState({ email: "", password: "", role: "" });
@@ -73,7 +74,10 @@ export default function Login() {
   const [success, setSuccess] = useState(false);
   const [isRoleChanged, setIsRoleChanged] = useState(false); // Track if role has been changed after first selection
   const history = useHistory();
-
+  // localStorage.clear();
+  useEffect(() => {
+    localStorage.clear();
+  }, []); 
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
