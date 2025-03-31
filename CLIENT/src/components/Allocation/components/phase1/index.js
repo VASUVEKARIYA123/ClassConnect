@@ -11,7 +11,9 @@ const AllocationStatus = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dataFetched, setDataFetched] = useState(false);
-  const [projectSelectionStatus, setProjectSelectionStatus] = useState("");
+  const [projectSelectionStatusmsg, setProjectSelectionStatusmsg] = useState("");
+  const [projectSelectionStatus, setProjectSelectionStatus] = useState(false);
+
 
   useEffect(() => {
     fetchClassroom();
@@ -84,7 +86,14 @@ const AllocationStatus = () => {
       if (!response.ok) throw new Error(`Error: ${response.status}`);
 
       const data = await response.json();
-      setProjectSelectionStatus(data.message);
+      setProjectSelectionStatusmsg(data.message);
+      //set timeout for some second 
+      if(data.projectSelectionStatus){
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
+      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -94,17 +103,17 @@ const AllocationStatus = () => {
 
   return (
     <Container>
-      <Button onClick={fetchAllocationStatus}>Check Allocation Status</Button>
+      <Button onClick={fetchAllocationStatus}>Check Group Confirmation Status</Button>
 
       {loading && <Message className="loading">Loading...</Message>}
       {error && <Message className="error">Error: {error}</Message>}
 
       {dataFetched && !loading && !error && (
         <div>
-          <SectionTitle>Unassigned or Unconfirmed Students</SectionTitle>
+          <SectionTitle>Unjoined or Unconfirmed Students</SectionTitle>
           {studentsNotAllocatedOrNotConfirmed.length === 0 ? (
             <Message className="success">
-              <FaCheckCircle className="icon success" /> All students are allocated and confirmed.
+              <FaCheckCircle className="icon success" /> All students are joined group and confirmed.
             </Message>
           ) : (
             <Table>
@@ -135,17 +144,31 @@ const AllocationStatus = () => {
               </>
             )}
           </Message>
+          {
+            !isAllocationComplete && (<Button >force join and conform</Button>)
+          }
+          
 
           {/* New Button for Checking Project Selection Choice */}
-          <Button onClick={checkProjectSelectionStatus} className="secondary">
-            Check Project Selection Status
-          </Button>
+          {
+            isAllocationComplete && (<Button onClick={checkProjectSelectionStatus} className="secondary">
+              Check Project Selection Status
+            </Button>)
+          }
 
-          {projectSelectionStatus && (
+          
+
+          {projectSelectionStatusmsg && (
             <Message className="info">
-              <FaCheckCircle className="icon info" /> {projectSelectionStatus}
+              <FaCheckCircle className="icon info" /> {projectSelectionStatusmsg}
             </Message>
           )}
+
+          {
+            !projectSelectionStatus && isAllocationComplete && projectSelectionStatusmsg && (<Button >forcely choice fill</Button>)
+          }
+                
+          
         </div>
       )}
       
