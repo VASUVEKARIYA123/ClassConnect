@@ -15,10 +15,10 @@ const Group = () => {
   const [groupName, setGroupName] = useState('');
   const [groupCode, setGroupCode] = useState('');
   const [errorMessage, setErrorMessage] = useState("");
-
+  const studentId = localStorage.getItem("facultiesId");
+  const classroomId = localStorage.getItem("classroomId");
   const fetchGroup = async () => {
-    const studentId = localStorage.getItem("facultiesId");
-    const classroomId = localStorage.getItem("classroomId");
+    
     try {
       const response = await fetch(`http://localhost:5000/api/groups/student/${studentId}/${classroomId}`, {
         method: "GET",
@@ -106,7 +106,7 @@ const Group = () => {
 
   const handleChangeMode = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/groups/changemode/${groupData._id}`, {
+      const response = await fetch(`http://localhost:5000/api/groups/changemode/${groupData._id}/${studentId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -164,12 +164,19 @@ const Group = () => {
             </ul>
           </GroupMembers>
 
-          {groupData.mode !== "phase2" && (
+          {groupData.mode === "phase1" && (
             <Button onClick={handleChangeMode}>Confirm Group</Button>
           )}
 
           {groupData.mode === "phase2" && (
             <Button onClick={handleShowProjects}>Show Project Definitions</Button>
+          )}
+
+          {groupData.mode === "phase3" && (
+            //make it green
+
+            
+            <p style={{color:"green"}}>you have successfully added project definitions now wait for project allocation!...</p>
           )}
 
           {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}

@@ -31,7 +31,7 @@ const ClassroomFacultySchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
-    },
+    }
 });
 
 // Create a unique compound index

@@ -11,7 +11,7 @@ const ProjectAllocation = () => {
     setStatus("");
 
     try {
-      const response = await fetch(`http://localhost:5000/api/allocation/allocate2/${classroomId}`, {
+      const response = await fetch(`http://localhost:5000/api/allocation/allocate/${classroomId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +36,7 @@ const ProjectAllocation = () => {
 
   return (
     <Container>
-      <Title>Project Allocation round 2</Title>
+      <Title>Project Allocation</Title>
       <Button onClick={startAllocation} disabled={loading}>
         {loading ? "Allocating..." : "Start Allocation"}
       </Button>

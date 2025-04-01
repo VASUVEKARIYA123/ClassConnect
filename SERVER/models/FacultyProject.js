@@ -14,6 +14,10 @@ const FacultyProjectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Classroom', // Auto-generate ObjectId
     },
+    allocated : {
+        type : Boolean,
+        default : false
+    }
 });
 
 // Create a unique compound index on fid, pid, and cid

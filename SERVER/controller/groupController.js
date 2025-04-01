@@ -19,10 +19,10 @@ const findMatchingStudents = async (req, res) => {
         }
 
         const classroom=await Classroom.findById(classroomId)
-        console.log(classroom);
+        // console.log(classroom);
         
         const criteriaId=classroom.criteriaId
-        console.log(criteriaId);
+        // console.log(criteriaId);
         
         // Fetch criteria for the classroom
         const criteria = await Criteria.findById(criteriaId)
@@ -57,7 +57,7 @@ const findMatchingStudents = async (req, res) => {
 
 
 const changemode = async (req, res) => {
-    const { groupId } = req.params;
+    const { groupId,studentId } = req.params;
 
 
     if (!groupId) {
@@ -70,6 +70,14 @@ const changemode = async (req, res) => {
         return res.status(404).json({ error: "group not exists" });
     }
 
+    if(!studentId){
+        return res.status(400).json({ error: "Student ID is required" });
+    }
+
+    //check student is first in group member 
+    if(studentId != group.students[0]._id){
+        return res.status(400).json({error: "Group admin/creater only able to conform group"});
+    }
 
     if (group.mode === "phase2") {
         return res.status(400).json({ error: "group has been already confirmed." });
@@ -199,7 +207,7 @@ const joinGroupByCode = async (req, res) => {
 
                 groupDivisions.add(existingStudentData.division);
             }
-            console.log(groupDivisions);
+            // console.log(groupDivisions);
            
             if (!groupDivisions.has(student.division)) {
                 return res.status(400).json({ error: "Students from different divisions cannot be in the same group" });

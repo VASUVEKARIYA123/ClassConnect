@@ -23,7 +23,13 @@ router.get(
   "/allocate/:classroomId",
   auth, 
   authorizeRole(["admin", "teacher"]),
-  allocationController.allocateProjects
+  allocationController.allocateProjectsRound1
+);
+router.get(
+  "/allocate2/:classroomId",
+  auth, 
+  authorizeRole(["admin", "teacher"]),
+  allocationController.allocateProjectsRound2
 );
 
 module.exports = router;

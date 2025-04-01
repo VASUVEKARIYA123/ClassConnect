@@ -47,7 +47,7 @@ const GroupSchema = new mongoose.Schema({
     },
     mode: {
         type: String,
-        enum: ["phase1", "phase2","phase3"],
+        enum: ["phase1", "phase2","phase3","phase4"],
         default: "phase1"
     }
 });

@@ -67,9 +67,7 @@ export default ({data}) => {
     <>
     <Wrapper>
       <NextTask />
-      {role ==="admin" ? "" :
-         <Group />
-      }
+      {role ==="student" ?  <Group /> : "" }
       {loading ? (
           <p>Loading tasks...</p>
         ) : tasks.length > 0 ? (

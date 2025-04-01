@@ -12,7 +12,7 @@ router.post("/:classroomId/:projectId",auth, authorizeRole(["admin","subadmin","
 router.post("/addGroupChoice/:groupId/:facultyProjectId",auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.addGroupChoice);
 router.put('/select-project/:groupId/:facultyProjectId',auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.selectProjectDefinition);
 router.put("/full/:groupId",auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.updateGroupFull);
-router.put("/changemode/:groupId",auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.changemode);
+router.put("/changemode/:groupId/:studentId",auth, authorizeRole(["admin","subadmin","teacher","student"]),  groupController.changemode);
 router.delete("/:groupId", auth, authorizeRole(["admin","subadmin","teacher","student"]), groupController.deleteGroup);
 router.get("/:groupId", auth, authorizeRole(["admin","subadmin","teacher","student"]), groupController.getGroupById);
 router.get("/classroom/:classroomId", auth, authorizeRole(["admin","subadmin","teacher","student"]), groupController.getGroupsByClassroomId);
