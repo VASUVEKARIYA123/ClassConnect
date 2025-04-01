@@ -92,6 +92,8 @@ function StudentProjects() {
   const [submitted, setSubmitted] = useState(false);
   const studentId = localStorage.getItem("facultiesId");
   const classroomId = localStorage.getItem("classroomId");
+  const [groupChoicelength, setGroupChoicelength] = useState(0);
+  const [groupChoice, setGroupChoice] = useState([]);
 
   useEffect(() => {
     if (!classroomId || !studentId) {
@@ -105,15 +107,18 @@ function StudentProjects() {
     })
         .then((res) => res.json())
         .then((data) => {
+            console.log("Fetched Group Data:", data); // Debugging log
             if (!data._id) {
                 setMessage("Group not found for this student.");
                 return;
             }
-
-            const groupId = data._id;
-            localStorage.setItem("groupId", groupId);
-
-            // ✅ Step 1: Fetch Student's Division from Classroom-Student
+            localStorage.setItem("groupId", data._id);
+            if (JSON.stringify(data.groupchoice) !== JSON.stringify(groupChoice)) {
+                setGroupChoice(data.groupchoice);
+                console.log(data.groupchoice);
+                setGroupChoicelength(data.groupchoice.length);
+            }
+            
             fetch(`http://localhost:5000/api/classroom-students/${classroomId}/${studentId}`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -124,10 +129,9 @@ function StudentProjects() {
                         setMessage("Student division not found.");
                         return;
                     }
-
-                    const studentDivision = studentData.division; // ✅ Student's division
-
-                    // ✅ Step 2: Fetch Faculties of the Classroom
+                    
+                    const studentDivision = studentData.division;
+                    
                     fetch(`http://localhost:5000/api/classroom-faculties/faculties-of-classroom/${classroomId}`, {
                         method: "GET",
                         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -138,20 +142,14 @@ function StudentProjects() {
                                 setMessage("Invalid faculty data received.");
                                 return;
                             }
-                            // console.log(facultiesData.faculties[0].division);
-                            
-                            // ✅ Step 3: Filter faculties by division (exclude admins)
+
                             const filteredFaculties = facultiesData.faculties.filter(
-                                faculty =>
-                                    faculty.facultyId.role !== "admin" && 
-                                    faculty.division === studentDivision // ✅ Match division
+                                faculty => faculty.facultyId.role !== "admin" && faculty.division === studentDivision
                             );
 
                             setFaculties(filteredFaculties);
-                            
                             const updatedFacultyProjects = {};
-
-                            // ✅ Step 4: Fetch Projects Only for These Faculties
+                            
                             Promise.all(
                                 filteredFaculties.map((faculty) =>
                                     fetch(`http://localhost:5000/api/faculty-projects/${classroomId}/${faculty.facultyId._id}`, {
@@ -181,15 +179,11 @@ function StudentProjects() {
                                                                 [project._id]: projectDetails,
                                                             }));
                                                         })
-                                                        .catch((err) =>
-                                                            console.error(`Error fetching project details: ${project._id}`, err)
-                                                        );
+                                                        .catch((err) => console.error(`Error fetching project details: ${project._id}`, err));
                                                 });
                                             }
                                         })
-                                        .catch((err) =>
-                                            console.error(`Error fetching projects for faculty ${faculty.facultyId._id}:`, err)
-                                        )
+                                        .catch((err) => console.error(`Error fetching projects for faculty ${faculty.facultyId._id}:`, err))
                                 )
                             ).then(() => {
                                 setFacultyProjects(updatedFacultyProjects);
@@ -209,7 +203,8 @@ function StudentProjects() {
             console.error("Error fetching group:", err);
             setMessage("Error fetching group.");
         });
-}, []);
+}, [classroomId, studentId]);
+
 
 
 
@@ -320,7 +315,12 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
 
 
   return (
+
   <Wrapper>
+
+  {groupChoicelength===0 &&
+  (<>
+
     <Heading>Selected Projects</Heading>
     <p style={{color : "red"}}>this is your project choice filling so fill choice wisely and fill accourding to precedence </p>
     {selectedChoices.length > 0 ? (
@@ -353,6 +353,7 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
     )}
     <Button onClick={handleSubmit}>Submit Selections</Button>
     {message && <Message success={submitted}>{message}</Message>} 
+
     <Heading>Classroom Projects</Heading>
     
     {faculties.map((faculty) => (
@@ -419,7 +420,61 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
       </div>
     ))}
   
-    
+
+    <Heading>Selected Projects</Heading>
+    {selectedChoices.length > 0 ? (
+      <Table>
+        <thead>
+          <tr>
+
+            <Th>Faculty</Th>
+            <Th>Domain</Th>
+            <Th>Definition</Th>
+            <Th>Action</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {selectedChoices.map(({ facultyId, projectId, domain, defination,faculty }) => (
+            <Row key={projectId}>
+
+              <Td>{faculty.firstname} {faculty.lastname}</Td>
+              <Td>{domain}</Td>
+              <Td>{defination}</Td>
+              <Td>
+                <Button onClick={() => handleUnselect(projectId)}>Unselect</Button>
+              </Td>
+            </Row>
+          ))}
+        </tbody>
+      </Table>
+    ) : (
+      <p>No projects selected.</p>
+    )}
+    <Button onClick={handleSubmit}>Submit Selections</Button>
+    </>
+  )}
+{Array.isArray(groupChoice) && groupChoice.length === 5 && (
+  <Table>
+ 
+    <thead>
+      <tr>
+        <Th>Faculty</Th>
+        <Th>Domain</Th>
+        <Th>Definition</Th>
+      </tr>
+    </thead>
+    <tbody>
+      {groupChoice.map(({ facultyId, projectId }) => (
+        <tr key={`${facultyId?._id}-${projectId?._id}`}>
+          <Td>{facultyId?.firstname} {facultyId?.lastname}</Td>
+          <Td>{projectId?.domain || "No Domain"}</Td>
+          <Td>{projectId?.defination || "No Definition"}</Td>
+        </tr>
+      ))}
+    </tbody>
+  </Table>
+)}
+
   </Wrapper>
 );
 }

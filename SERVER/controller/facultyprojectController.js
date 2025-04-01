@@ -7,13 +7,19 @@ const addFacultyProject = async (req, res) => {
 
     try {
         // Check if the same faculty-project-classroom combination already exists
-        const existingEntry = await FacultyProject.findOne({ facultyId, projectId, classroomId })
-            .populate("facultyId", "firstname lastname email") // Populate faculty details
-            .populate("projectId", "domain defination max_groups") // Populate project details
-            .populate("classroomId", "name description semester"); // Populate classroom details
+        let existingEntry = await FacultyProject.findOne({ facultyId, projectId, classroomId });
 
         if (existingEntry) {
-            return res.status(400).json({ message: "This faculty-project-classroom combination already exists", existingEntry });
+            existingEntry = await existingEntry
+                .populate("facultyId")
+                .populate("projectId")
+                .populate("classroomId")
+                .execPopulate();
+
+            return res.status(400).json({
+                message: "This faculty-project-classroom combination already exists",
+                existingEntry
+            });
         }
 
         // Create new faculty-project entry
@@ -24,13 +30,19 @@ const addFacultyProject = async (req, res) => {
         const populatedFacultyProject = await FacultyProject.findById(facultyProject._id)
             .populate("facultyId")
             .populate("projectId")
-            .populate("classroomId");
-
-        res.status(201).json({ message: "Faculty-Project assigned successfully", facultyProject: populatedFacultyProject });
+            .populate("classroomId")
+            .exec();
+        
+        res.status(201).json({
+            message: "Faculty-Project assigned successfully",
+            facultyProject: populatedFacultyProject
+        });
     } catch (err) {
-        res.status(500).json({ message: "Server Error: " + err });
+        console.error("Error in addFacultyProject:", err);
+        res.status(500).json({ message: "Server Error", error: err.message });
     }
 };
+
 
 
 
