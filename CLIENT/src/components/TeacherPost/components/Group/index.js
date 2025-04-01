@@ -168,9 +168,9 @@ const Group = () => {
             <Button onClick={handleChangeMode}>Confirm Group</Button>
           )}
 
-          {groupData.mode === "phase2" && (
+          {(groupData.mode === "phase2" || groupData.mode === "phase3")  && (
             <Button onClick={handleShowProjects}>Show Project Definitions</Button>
-          )}
+         )}
 
           {groupData.mode === "phase3" && (
             //make it green
