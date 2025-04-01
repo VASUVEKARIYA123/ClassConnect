@@ -536,7 +536,10 @@ const getGroupByStudentId = async (req, res) => {
 
 
         const group = await Group.findOne({ students: studentId, classroomId })
-            .populate('facultyprojectId')
+        .populate({
+            path: "groupchoice",
+            populate: [{ path: "facultyId" }, { path: "projectId" }]
+        })
             .populate('students')
             .populate('classroomId');
 
@@ -566,38 +569,51 @@ const addGroupChoice = async (req, res) => {
             return res.status(404).json({ message: "Group not found" });
         }
 
-        const facultyProject = await FacultyProject.findById(facultyProjectId);
+        const facultyProject = await FacultyProject.findById(facultyProjectId)
+            .populate("facultyId")
+            .populate("projectId");
+        
         if (!facultyProject) {
             return res.status(404).json({ message: "Faculty Project not found" });
         }
 
-        // Ensure groupchoice is initialized
         if (!Array.isArray(group.groupchoice)) {
             group.groupchoice = [];
         }
 
-        // Check if the limit of 5 is reached
         if (group.groupchoice.length >= 5) {
             return res.status(400).json({ message: "You can only select up to 5 project choices." });
         }
 
-        // Prevent duplicate entries
         if (group.groupchoice.includes(facultyProjectId)) {
             return res.status(400).json({ message: "Faculty Project already added to group choice." });
         }
 
-        // Add new faculty project choice
         group.groupchoice.push(facultyProjectId);
         group.updatedAt = Date.now();
 
         await group.save();
 
-        res.status(200).json({ message: "Group choice added successfully", group });
+        // ✅ Fetch again with deep population
+        const updatedGroup = await Group.findById(groupId)
+            .populate({
+                path: "groupchoice",
+                populate: [
+                    { path: "facultyId", model: "Faculty" },
+                    { path: "projectId", model: "Project" }
+                ]
+            })
+            .exec();
+            // console.log("Updated Group Choice Data:", JSON.stringify(updatedGroup, null, 2));
+
+        res.status(200).json({ message: "Group choice added successfully", group: updatedGroup });
+
     } catch (error) {
         console.error("Error adding group choice:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
 
 const getGroupsByClassroomId = async (req, res) => {
     try {
