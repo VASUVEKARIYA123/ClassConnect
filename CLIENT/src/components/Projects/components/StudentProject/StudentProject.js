@@ -419,38 +419,6 @@ const handleSelection = async (facultyId, projectId, domain, defination) => {
         </Table>
       </div>
     ))}
-  
-
-    <Heading>Selected Projects</Heading>
-    {selectedChoices.length > 0 ? (
-      <Table>
-        <thead>
-          <tr>
-
-            <Th>Faculty</Th>
-            <Th>Domain</Th>
-            <Th>Definition</Th>
-            <Th>Action</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedChoices.map(({ facultyId, projectId, domain, defination,faculty }) => (
-            <Row key={projectId}>
-
-              <Td>{faculty.firstname} {faculty.lastname}</Td>
-              <Td>{domain}</Td>
-              <Td>{defination}</Td>
-              <Td>
-                <Button onClick={() => handleUnselect(projectId)}>Unselect</Button>
-              </Td>
-            </Row>
-          ))}
-        </tbody>
-      </Table>
-    ) : (
-      <p>No projects selected.</p>
-    )}
-    <Button onClick={handleSubmit}>Submit Selections</Button>
     </>
   )}
 {Array.isArray(groupChoice) && groupChoice.length === 5 && (

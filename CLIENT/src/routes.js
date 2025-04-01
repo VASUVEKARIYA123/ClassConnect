@@ -7,6 +7,7 @@ import TeacherPost from './components/TeacherPost';
 import Login from './components/Login/login';
 import Logout from './components/Logout/logout';
 import ClassroomDetails from "./components/ClassroomDetails/classroomDetails";
+import FacultyPer from "./components/FacultyPer/FacultyPer";
 import ImportStudents from './components/TeacherPost/components/ImportStudents/ImportStudents';
 import ImportFaculties from './components/TeacherPost/components/ImportFaculties/ImportFaculties';
 import AddFaculty from "./components/AddFaculty"; 
@@ -32,6 +33,7 @@ export default function Routes() {
         <Route path="/create-labtask" exact component={CreateLabTask} />
         <Route path="/" exact component={Login} />
         <Route path="/logout" exact component={Logout} />
+        <Route path="/group-details/:classId" exact component={FacultyPer} />
         <Route path="/classroom-details/:classId" exact component={ClassroomDetails} />
         <Route path="/import-students/:classroomId" exact component={ImportStudents} />
         <Route path="/import-faculties/:classroomId" exact component={ImportFaculties} />

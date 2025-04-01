@@ -4,6 +4,7 @@ import styled from "styled-components";
 import AddLabTaskButton from "../addLabTaskbut"; 
 import AddStudentButton from "../AddStudentButton/addStudentButton";
 import AddFacultyButton from "../AddFacultyButton/addfacultybutton"; 
+import FacultyPer from "../../../FacultyPer/FacultyPer"; 
 
 const Wrapper = styled.div`
   display: flex;
@@ -142,6 +143,12 @@ export default () => {
         {role === "admin" && (
           <StyledLink to="/add-classroom-project">
             Add project to classroom
+          </StyledLink>
+        )}
+
+        {role === "admin" && (
+          <StyledLink to={`/group-details/${classroomId}`}>
+            Faculty Groups
           </StyledLink>
         )}
         

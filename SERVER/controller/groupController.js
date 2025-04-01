@@ -628,7 +628,11 @@ const getGroupsByClassroomId = async (req, res) => {
         const { classroomId } = req.params;
 
         const groups = await Group.find({ classroomId })
-            .populate('facultyprojectId')
+            .populate('facultyprojectId')  // Populate facultyprojectId first
+            .populate({
+                path: 'facultyprojectId.projectId', // Populate the nested projectId inside facultyprojectId
+                model: 'Project', // Ensure the correct model is referenced (adjust if it's different)
+            })
             .populate('groupchoice')
             .populate('students');
 
@@ -638,6 +642,7 @@ const getGroupsByClassroomId = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
 
 
 
